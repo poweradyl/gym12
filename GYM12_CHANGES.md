@@ -120,6 +120,33 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/gym12/install/install.test.jsx` | Testes: regras do Gate, Gate fora/dentro do standalone, instalado, `#/instalar`, voltar, hideBoot, cada cartão, copiar link, pedido do Android (aceito, recusado, sem pedido em 2,5 s, appinstalled), CSS do movimento (só sob `.g12i-enter`, `backwards`, nada transparente), os 3 passos do iOS, a classe de entrada saindo depois de `ENTER_MS` e ausente com "reduzir movimento"/aba escondida, linha de Sobre. |
 | 2026-11-06 | `frontend/src/gym12/install/install-build.test.js` | Testes: a captura (WebP 440×926, ≤ 80 KB), a cópia pelo plugin e a LAZY do pós-build. |
 | 2026-11-06 | `docs/gym12/capturas/instalacao/` | Capturas de cada caminho da página de instalação (390×844, escala 3; iPhone no WebKit do Playwright, Android/desktop no Chromium), com "reduzir movimento", 360×740 e 430×932, Sobre, app instalado e sem rede. |
+| 2026-11-06 | `docs/gym12/capturas/producao/` | Captura do app ao vivo em produção (390×844). |
+
+## Deploy
+
+Publicado em 2026-11-06.
+
+- Cloudflare Pages, projeto `gym12`, branch de produção `gym12`.
+- URL: https://gym12.juniorsa.shop (domínio próprio; DNS `CNAME gym12 → gym12.pages.dev`,
+  proxied) e https://gym12.pages.dev.
+- Build e deploy, na raiz do repositório, com a árvore limpa no branch `gym12` e
+  `VITE_TESTE_LICENCA`/`GYM12_AMBIENTE` não definidas:
+
+```sh
+scripts/gym12-build.sh
+export CLOUDFLARE_API_TOKEN=$(tr -d '[:space:]' < ~/.gym12-cloudflare-token)
+export CLOUDFLARE_ACCOUNT_ID=303fc1d767b05625df9021548808fc65
+npx wrangler@3.114.17 pages deploy frontend/dist --project-name gym12 --branch gym12 \
+  --commit-hash $(git rev-parse HEAD) --commit-dirty=false
+```
+
+- Wrangler fixado no 3.x: o wrangler 4.15x desvia `pages project create`/`deploy` para o
+  Cloudflare Workers, que o token não cobre (e grava `wrangler.jsonc`, `package.json` e
+  `.gitignore` no repositório). O token nunca vai para arquivo do repositório nem para log.
+- Ambiente de teste cancelado pelo dono em 2026-11-06: o código de `VITE_TESTE_LICENCA`
+  (variante de Licenças, `scripts/gym12-build-teste.sh`, travas do plugin) continua no
+  repositório, sem uso; nada é publicado no branch `teste-licenca`.
+- Web Analytics: ligado pelo painel do Cloudflare (o token não tem permissão para isso).
 
 ## Atualização mensal
 
@@ -149,7 +176,7 @@ O que o script faz:
    passos. Registros detalhados ficam em `.git/gym12-sync/<tag>/`.
 6. Se testes e build passarem, envia `sync/<tag>` ao `origin` e publica uma **prévia** no
    Cloudflare Pages (`--branch sync-<tag com hífens>`, ex.: `sync-v1-4-5`). Se o wrangler não
-   estiver logado, para antes e explica (`npx wrangler login`).
+   estiver logado, para antes e explica (`npx wrangler@3.114.17 login`).
 7. Volta ao branch original.
 
 **Nunca publica em produção.** O script recusa deploy com `--branch gym12`, `main` ou
@@ -174,5 +201,5 @@ Conflitos (saída 2): o script lista e classifica cada arquivo no resumo e deixa
   (`git checkout --theirs <arquivo>`).
 
 Depois: `git add`, `git commit --no-edit`, testes, build, prévia
-(`npx wrangler pages deploy frontend/dist --project-name gym12 --branch sync-<tag>`) e a
+(`npx wrangler@3.114.17 pages deploy frontend/dist --project-name gym12 --branch sync-<tag>`) e a
 aprovação acima. Se um conflito pedir mudar um arquivo original novo, registre-o na tabela.

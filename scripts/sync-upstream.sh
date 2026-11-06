@@ -16,6 +16,14 @@ UPSTREAM_REPO="DuarteSantos8/openGym"
 ORIGIN_REMOTE="origin"
 BASE_BRANCH="gym12"
 CF_PROJECT="gym12"
+# wrangler fixo na 3.x: a 4.x manda "pages project" para Workers (visto em 06/11/2026).
+WRANGLER_VER="3.114.17"
+CF_ACCOUNT_ID="303fc1d767b05625df9021548808fc65"
+# Token do Cloudflare: lido de ~/.gym12-cloudflare-token se existir (nunca impresso).
+if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] && [ -f "$HOME/.gym12-cloudflare-token" ]; then
+  CLOUDFLARE_API_TOKEN=$(tr -d '[:space:]' < "$HOME/.gym12-cloudflare-token"); export CLOUDFLARE_API_TOKEN
+fi
+export CLOUDFLARE_ACCOUNT_ID="${CLOUDFLARE_ACCOUNT_ID:-$CF_ACCOUNT_ID}"
 SUMMARY_DIR="docs/gym12/sync"
 BUILD_SCRIPT="scripts/gym12-build.sh"
 
@@ -253,7 +261,7 @@ EOF
   if [ "$PREVIEW" = 1 ]; then
     cat <<EOF
   - se testes e build passarem: git push -u $ORIGIN_REMOTE $SYNC_BRANCH
-  - npx wrangler pages deploy frontend/dist --project-name $CF_PROJECT --branch $DEPLOY_BRANCH   (prévia)
+  - npx --yes wrangler@$WRANGLER_VER pages deploy frontend/dist --project-name $CF_PROJECT --branch $DEPLOY_BRANCH   (prévia)
 EOF
   else
     echo "  - sem prévia (--no-preview): nada de push nem deploy"
@@ -476,7 +484,7 @@ write_summary() {
       echo "1. Resolva os conflitos no branch \`$SYNC_BRANCH\` seguindo a classificação acima e as regras da camada fina do \`GYM12_CHANGES.md\`."
       echo "2. \`git add\` nos arquivos resolvidos e \`git commit --no-edit\`."
       echo "3. Rode \`cd frontend && npm ci && npm test\` e \`$BUILD_SCRIPT\`."
-      echo "4. Publique a prévia: \`npx wrangler pages deploy frontend/dist --project-name $CF_PROJECT --branch $DEPLOY_BRANCH\`."
+      echo "4. Publique a prévia: \`npx --yes wrangler@$WRANGLER_VER pages deploy frontend/dist --project-name $CF_PROJECT --branch $DEPLOY_BRANCH\`."
       echo "5. Abra a prévia, confira, e se estiver tudo certo rode: \`git checkout $BASE_BRANCH && git merge --ff-only $SYNC_BRANCH && git push $ORIGIN_REMOTE $BASE_BRANCH\`"
     else
       echo "Abra a prévia, confira, e se estiver tudo certo rode: \`git checkout $BASE_BRANCH && git merge --ff-only $SYNC_BRANCH && git push $ORIGIN_REMOTE $BASE_BRANCH\`"
@@ -595,14 +603,14 @@ if [ "$OK" != 1 ]; then
   PREVIEW_STATE="não publicada: testes ou build falharam"
 elif [ "$PREVIEW" != 1 ]; then
   PREVIEW_STATE="não publicada (--no-preview)"
-  PREVIEW_NOTE="Para publicar depois: git push -u $ORIGIN_REMOTE $SYNC_BRANCH && npx wrangler pages deploy frontend/dist --project-name $CF_PROJECT --branch $DEPLOY_BRANCH"
+  PREVIEW_NOTE="Para publicar depois: git push -u $ORIGIN_REMOTE $SYNC_BRANCH && npx --yes wrangler@$WRANGLER_VER pages deploy frontend/dist --project-name $CF_PROJECT --branch $DEPLOY_BRANCH"
 else
   say "Conferindo login do wrangler…"
-  WHOAMI=$(npx --yes wrangler whoami 2>&1 || true)
+  WHOAMI=$(npx --yes wrangler@$WRANGLER_VER whoami 2>&1 || true)
   if printf '%s' "$WHOAMI" | grep -qiE 'not authenticated|not logged in|wrangler login'; then
     PREVIEW_STATE="não publicada: o wrangler não está logado"
-    PREVIEW_NOTE="Rode \`npx wrangler login\` (abre o navegador) e depois: git push -u $ORIGIN_REMOTE $SYNC_BRANCH && npx wrangler pages deploy frontend/dist --project-name $CF_PROJECT --branch $DEPLOY_BRANCH"
-    warn "o wrangler não está logado. Rode: npx wrangler login — e depois rode o deploy da prévia (está no resumo)."
+    PREVIEW_NOTE="Rode \`npx --yes wrangler@$WRANGLER_VER login\` (abre o navegador) e depois: git push -u $ORIGIN_REMOTE $SYNC_BRANCH && npx --yes wrangler@$WRANGLER_VER pages deploy frontend/dist --project-name $CF_PROJECT --branch $DEPLOY_BRANCH"
+    warn "o wrangler não está logado. Rode: npx --yes wrangler@$WRANGLER_VER login — e depois rode o deploy da prévia (está no resumo)."
     PREVIEW_FAILED=1
   else
     guard_push_branch "$SYNC_BRANCH"
@@ -611,7 +619,7 @@ else
       PUSHED=1
       guard_deploy_branch "$DEPLOY_BRANCH"
       say "Publicando a prévia (branch $DEPLOY_BRANCH)…"
-      if npx --yes wrangler pages deploy frontend/dist --project-name "$CF_PROJECT" --branch "$DEPLOY_BRANCH" \
+      if npx --yes wrangler@$WRANGLER_VER pages deploy frontend/dist --project-name "$CF_PROJECT" --branch "$DEPLOY_BRANCH" \
            > "$LOG_DIR/deploy.log" 2>&1; then
         PREVIEW_URL=$(grep -oE 'https://[A-Za-z0-9.-]+\.pages\.dev[^[:space:]]*' "$LOG_DIR/deploy.log" | tail -n 1 || true)
         PREVIEW_STATE="publicada"
