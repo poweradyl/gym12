@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 // GYM 12: a camada de tradução (i18n-overlay.js) e a ligação dela em lib/i18n.js e i18n-core.js.
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 
 afterEach(() => { vi.unstubAllEnvs(); vi.doUnmock('./locales/pt-BR.ui.js'); vi.doUnmock('./locales/pt-BR.names.js'); vi.resetModules() })
 
@@ -68,6 +70,27 @@ describe('overlayFor', () => {
     expect(ov.names).toEqual({ 1: 'Supino com barra', 2: 'Remada curvada com barra', 3: 'Élévation teste', 4: '3/4 abdominal', 5: 'Agachamento no Smith' })
     // os outros idiomas não mudam a caixa
     expect((await overlayFor('es', {}, { 1: 'press de banca' })).names).toEqual({})
+  })
+})
+
+describe('etiquetas de músculo e equipamento em pt-BR', () => {
+  it('ganham só a 1ª letra maiúscula; frases que não são etiqueta não mudam; outros idiomas também não', async () => {
+    vi.resetModules()
+    vi.stubEnv('VITE_STANDALONE', '1')
+    const { overlayFor, tagKeys } = await import('./i18n-overlay.js')
+    const keys = await tagKeys()
+    for (const k of ['hamstrings', 'body weight', 'full body', 'cardiovascular system', 'already in']) expect(keys.has(k), k).toBe(true)
+    const { ui } = await overlayFor('pt-BR', { 'body weight': 'peso corporal', 'full body': 'corpo inteiro', sets: 'séries', 'already in': 'já incluído' })
+    expect(ui['body weight']).toBe('Peso corporal')
+    expect(ui['full body']).toBe('Corpo inteiro')
+    expect(ui.hamstrings).toBe('Posteriores de coxa')   // vem da camada (pt-BR.ui.js)
+    expect(ui['already in']).toBe('Já incluído')
+    expect(ui.sets).toBeUndefined()
+    expect((await overlayFor('es', { 'body weight': 'peso corporal' })).ui['body weight']).toBeUndefined()
+  })
+  it('o CSS tira o capitalize das etiquetas só em pt-BR', () => {
+    const css = readFileSync(join(process.cwd(), 'src/gym12/gym12.css'), 'utf8')
+    expect(css).toMatch(/:root:lang\(pt-BR\) \.tag,\s*:root:lang\(pt-BR\) \.ss\.capitalize,\s*:root:lang\(pt-BR\) \.ss \.capitalize,\s*:root:lang\(pt-BR\) \.lib-filters \.chip,\s*:root:lang\(pt-BR\) \.lib-fsheet \.chip \{ text-transform: none \}/)
   })
 })
 

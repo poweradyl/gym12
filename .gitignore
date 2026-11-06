@@ -11,6 +11,7 @@ data/
 
 # Build output / deps
 frontend/dist/
+frontend/dist-teste/
 node_modules/
 *.log
 .DS_Store

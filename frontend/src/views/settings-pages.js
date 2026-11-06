@@ -41,6 +41,8 @@ export const PAGES = {
   // The phone's health store, one page per platform (until 1.4.4 a section of Data & backup).
   'apple-health': { title: 'Apple Health', icon: 'heart', tint: 'var(--red)', parent: 'integrations', mod: 'health', kw: 'apple health healthkit heart rate weight scale watch sync workouts' },
   'health-connect': { title: 'Health Connect', icon: 'heart', tint: 'var(--red)', parent: 'integrations', mod: 'health', kw: 'health connect google fit samsung fitbit garmin heart rate weight scale watch sync workouts' },
+  // GYM 12: Sobre → Licenças (gym12/Licencas.jsx), só no build do GYM 12.
+  ...(STANDALONE && { licencas: { title: 'Licenças', icon: 'shield', tint: 'var(--grey)', parent: 'about', kw: 'licenses license agpl source code notice copyright' } }),
 }
 export const PAGE_IDS = Object.keys(PAGES)
 

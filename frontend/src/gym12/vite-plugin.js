@@ -11,9 +11,18 @@
 //    os ícones (favicon SVG + PNG 32) e a tela de abertura com o wordmark (brand/wordmark.svg).
 //  - closeBundle: dist/manifest.json a partir de brand/manifest.json, os ícones de brand/ na raiz do
 //    dist e dist/_headers (Cloudflare Pages).
-import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+//  - config: as travas do ambiente (checarAmbiente) e as constantes da tela de Licenças
+//    (__GYM12_COMMIT__, o commit deste build).
+//  - generateBundle: dist/licencas/ (LICENSE.txt, NOTICE.md, OFL-*.txt e terceiros.json, as
+//    bibliotecas que entraram no bundle), lidos pela tela de Licenças (gym12/Licencas.jsx).
+//  - Ambiente de teste (GYM12_AMBIENTE=teste): noindex no index.html, no _headers e no robots.txt;
+//    com VITE_TESTE_LICENCA=1, a tela de Licenças vira a variante (gym12/LicencasTeste.jsx). Fora
+//    desse build a variante nunca é resolvida, então não entra no bundle.
+import { copyFileSync, existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { dirname, join, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { execFileSync } from 'node:child_process'
+import { loadEnv } from 'vite'
 
 const HERE = dirname(fileURLToPath(import.meta.url))   // frontend/src/gym12
 const SRC = resolve(HERE, '..')                          // frontend/src
@@ -31,9 +40,12 @@ export const STUBS = {
   [join(SRC, 'components/GymMap.jsx')]: join(HERE, 'stubs/GymMap.jsx'),
 }
 // Filtro barato antes de pedir ao Vite para resolver o caminho.
+// A tela de Licenças e a variante do ambiente de teste.
+export const LICENCAS = join(HERE, 'Licencas.jsx')
+export const LICENCAS_TESTE = join(HERE, 'LicencasTeste.jsx')
 // O boot.js do GYM 12, que recebe o import do CSS da marca (transform).
 const BOOT = join(HERE, 'boot.js')
-const NAMES = /(?:^|[\\/])(?:CoachChat|CoachIntake|CoachSetup|Admin|coach-local|coach-demo|demoSeed|GymMap)(?:\.jsx?)?$/
+const NAMES = /(?:^|[\\/])(?:CoachChat|CoachIntake|CoachSetup|Admin|coach-local|coach-demo|demoSeed|GymMap|Licencas)(?:\.jsx?)?$/
 
 export const DESCRIPTION = 'GYM 12 — sua ficha de treino no celular. Grátis, sem anúncio, seus treinos ficam no seu celular.'
 export const THEME_COLOR = '#050604'
@@ -133,31 +145,137 @@ export function buildInfo(bundle) {
   return { packs: packs.sort(), ptBR: [...ptBR].sort() }
 }
 
+// ------------------------------------------------------------- ambiente de teste --
+
+// O texto da faixa da variante (o pós-build confere que ele não está no build de produção).
+export { TESTE_BANNER } from './teste-licenca.js'
+/** O branch do Cloudflare Pages em que a variante pode ser publicada. */
+export const TESTE_BRANCH = 'teste-licenca'
+
+/** A flag da variante está ligada? (vazio ou "0" = desligada) */
+export const licencaTesteLigada = env => !!env.VITE_TESTE_LICENCA && env.VITE_TESTE_LICENCA !== '0'
+/** É o build do ambiente de teste? */
+export const ambienteTeste = env => env.GYM12_AMBIENTE === 'teste'
+
+/**
+ * As travas do ambiente, como função pura: devolve a mensagem de erro (pt-BR) que derruba o build,
+ * ou null. A variante da tela de Licenças só existe no build do ambiente de teste, e nunca num
+ * branch do Cloudflare Pages que não seja o de teste.
+ */
+export function checarAmbiente(env) {
+  if (!licencaTesteLigada(env)) return null
+  if (!ambienteTeste(env)) return 'VITE_TESTE_LICENCA só pode ser ligada no build do ambiente de teste (GYM12_AMBIENTE=teste). O build de produção não aceita essa variável.'
+  if (env.CF_PAGES_BRANCH && env.CF_PAGES_BRANCH !== TESTE_BRANCH) return `VITE_TESTE_LICENCA só pode ser ligada no branch ${TESTE_BRANCH} do Cloudflare Pages (este build é do branch ${env.CF_PAGES_BRANCH}). O build de produção não aceita essa variável.`
+  return null
+}
+
+export const ROBOTS_META = '<meta name="robots" content="noindex, nofollow">'
+export const ROBOTS_TXT = 'User-agent: *\nDisallow: /\n'
+export const HEADERS_TESTE = '/*\n  X-Robots-Tag: noindex, nofollow\n'
+
+/** O index.html do ambiente de teste: a meta robots logo depois do <head>. */
+export function noindexHtml(html) {
+  if (!html.includes('<head>')) throw new Error('[gym12] index.html sem <head>: não consegui pôr o noindex')
+  return html.replace('<head>', () => '<head>\n' + ROBOTS_META)
+}
+
+// ------------------------------------------------------------------- licenças --
+
+/** O commit deste build (hash curto do git; no Cloudflare Pages, CF_PAGES_COMMIT_SHA se faltar o git). */
+export function commitDoBuild(env = process.env) {
+  try { return execFileSync('git', ['rev-parse', '--short', 'HEAD'], { cwd: REPO, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() } catch { /* sem git */ }
+  return env.CF_PAGES_COMMIT_SHA ? env.CF_PAGES_COMMIT_SHA.slice(0, 9) : 'desconhecido'
+}
+
+// Os textos que vão para dist/licencas/, como estão no repositório.
+export const LICENCA_ARQUIVOS = {
+  'licencas/LICENSE.txt': join(REPO, 'LICENSE'),
+  'licencas/NOTICE.md': join(REPO, 'NOTICE.md'),
+  'licencas/OFL-Fraunces.txt': join(HERE, 'fonts/OFL-Fraunces.txt'),
+  'licencas/OFL-Geist.txt': join(HERE, 'fonts/OFL-Geist.txt'),
+  'licencas/OFL-JetBrainsMono.txt': join(HERE, 'fonts/OFL-JetBrainsMono.txt'),
+}
+export const TERCEIROS = 'licencas/terceiros.json'
+
+const NM = /[\\/]node_modules[\\/]((?:@[^\\/]+[\\/])?[^\\/]+)(?=[\\/])/g
+/** As pastas dos pacotes de node_modules que têm módulo no bundle: { nome: pasta }. */
+export function pacotesNoBundle(bundle) {
+  const out = {}
+  for (const c of Object.values(bundle)) {
+    if (c.type !== 'chunk') continue
+    for (const id of (c.moduleIds?.length ? c.moduleIds : Object.keys(c.modules || {}))) {
+      const clean = id.replace(/^\0/, '').split('?')[0]
+      const all = [...clean.matchAll(NM)]
+      if (!all.length) continue
+      const m = all[all.length - 1]           // o pacote mais interno (node_modules aninhado)
+      const name = m[1].split(sep).join('/').replace(/\\/g, '/')
+      out[name] ||= clean.slice(0, m.index + m[0].length)
+    }
+  }
+  return out
+}
+
+const LICENSE_FILE = /^(?:licen[cs]e|copying|notice)(?:[.-].*)?$/i
+/** Uma biblioteca para terceiros.json: nome, versão, licença, linha de copyright e o texto da licença. */
+export function biblioteca(name, dir, direct = []) {
+  const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+  const license = typeof pkg.license === 'string' ? pkg.license : pkg.license?.type || (pkg.licenses || []).map(l => l.type || l).join(' OR ') || null
+  const file = readdirSync(dir).filter(f => LICENSE_FILE.test(f)).sort((a, b) => a.length - b.length)[0]
+  const texto = file ? readFileSync(join(dir, file), 'utf8') : null
+  // A linha de copyright do LICENSE ("Copyright (c) 2021 Fulano"), nunca a do modelo da Apache
+  // ("Copyright [yyyy] [name of copyright owner]") nem a frase do corpo da licença.
+  const copyright = texto?.split(/\r?\n/).map(l => l.trim())
+    .find(l => /^(?:copyright\s+(?:\(c\)|©|\d{4})|(?:\(c\)|©)\s*\d{4})/i.test(l) && !/[[{]yyyy[\]}]/i.test(l)) || null
+  const pessoa = p => (typeof p === 'string' ? p.replace(/\s*[<(].*$/, '') : p?.name) || null
+  const autor = pessoa(pkg.author) || pessoa((pkg.contributors || [])[0])
+  return { nome: name, versao: pkg.version, licenca: license, copyright, autor, direta: direct.includes(name), texto }
+}
+
+/** terceiros.json: as bibliotecas do bundle, em ordem alfabética. */
+export function terceiros(bundle, direct = []) {
+  return Object.entries(pacotesNoBundle(bundle)).map(([n, d]) => biblioteca(n, d, direct)).sort((a, b) => a.nome.localeCompare(b.nome))
+}
+
 export default function gym12() {
   let outDir = resolve(SRC, '../dist')
   let info = null
+  let env = process.env
   return {
     name: 'gym12',
     enforce: 'pre',
+    config(config, { mode } = {}) {
+      env = { ...loadEnv(mode || 'production', config.root || resolve(SRC, '..'), ''), ...process.env }
+      const err = checarAmbiente(env)
+      if (err) throw new Error('[gym12] Build recusado: ' + err)
+      return { define: { __GYM12_COMMIT__: JSON.stringify(commitDoBuild(env)) } }
+    },
     configResolved(config) { outDir = resolve(config.root, config.build.outDir) },
     async resolveId(source, importer, options) {
       if (!importer || !NAMES.test(source.split('?')[0])) return null
       const r = await this.resolve(source, importer, { ...options, skipSelf: true })
       const id = r?.id?.split('?')[0]
+      // A variante só no build de teste, e a própria variante continua importando a tela normal.
+      if (id === LICENCAS) return licencaTesteLigada(env) && importer.split('?')[0] !== LICENCAS_TESTE ? LICENCAS_TESTE : null
       return id && STUBS[id] ? STUBS[id] : null
     },
     transform(code, id) {
       if (id.split('?')[0] !== BOOT) return null
       return { code: "import './gym12.css'\n" + code, map: null }
     },
-    transformIndexHtml: { order: 'pre', handler: html => brandHtml(html) },
-    generateBundle(_, bundle) { info = buildInfo(bundle) },
+    transformIndexHtml: { order: 'pre', handler: html => (ambienteTeste(env) ? noindexHtml(brandHtml(html)) : brandHtml(html)) },
+    generateBundle(_, bundle) {
+      info = buildInfo(bundle)
+      for (const [fileName, src] of Object.entries(LICENCA_ARQUIVOS)) this.emitFile({ type: 'asset', fileName, source: readFileSync(src, 'utf8') })
+      const direct = Object.keys(JSON.parse(readFileSync(join(SRC, '../package.json'), 'utf8')).dependencies || {})
+      this.emitFile({ type: 'asset', fileName: TERCEIROS, source: JSON.stringify(terceiros(bundle, direct), null, 1) + '\n' })
+    },
     closeBundle() {
       if (!existsSync(outDir)) return
       const manifest = JSON.parse(readFileSync(join(REPO, 'brand/manifest.json'), 'utf8'))
       writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n')
       for (const f of BRAND_FILES) copyFileSync(join(REPO, 'brand', f), join(outDir, f))
-      writeFileSync(join(outDir, '_headers'), HEADERS)
+      writeFileSync(join(outDir, '_headers'), ambienteTeste(env) ? HEADERS + HEADERS_TESTE : HEADERS)
+      if (ambienteTeste(env)) writeFileSync(join(outDir, 'robots.txt'), ROBOTS_TXT)
       if (info) writeFileSync(join(outDir, '.gym12-build.json'), JSON.stringify(info, null, 2) + '\n')
     },
   }

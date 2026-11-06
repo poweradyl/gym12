@@ -45,6 +45,9 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/views/Home.jsx` | A linha do título do standalone vira o wordmark: `GYM <b>12</b>` em `.g12-wm` (cores no gym12.css). |
 | 2026-11-06 | `frontend/src/components/ui.jsx` | `NumberField` mostra vírgula decimal em pt-BR no standalone ("67,5"); continua aceitando "67,5" e "67.5" (o `commit` do upstream já trocava a vírgula). |
 | 2026-11-06 | `frontend/src/lib/card-draw.js` | Wordmark das imagens de compartilhamento: "GYM" em bone (escuro) + "12" no acento, em Fraunces quando a fonte já carregou, sem os halteres do openGym. |
+| 2026-11-06 | `frontend/src/views/Settings.jsx` | Sobre (standalone): linha "Licenças" e bloco da versão do GYM 12 (`SobreVersao`: "GYM 12 v…", "Animações dos exercícios © Aliaksandr Makatserchyk, Gym visual, gymvisual.com." e "Ver licenças"), sem citar o openGym; página `licencas` (`gym12/Licencas.jsx`) no mapa de páginas. Fora do standalone o bloco do upstream volta a ser o original, sem ramos. |
+| 2026-11-06 | `frontend/src/views/settings-pages.js` | Página `licencas` (título "Licenças", filha de `about`) só no standalone; a busca de Ajustes a acha. |
+| 2026-11-06 | `.gitignore` | `frontend/dist-teste/` (saída do build do ambiente de teste). |
 
 ## Arquivos novos
 
@@ -88,6 +91,20 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `brand/icon.svg`, `brand/icon-180.png`, `brand/icon-192.png`, `brand/icon-512.png`, `brand/icon-maskable-512.png`, `brand/favicon.svg`, `brand/favicon-32.png`, `brand/wordmark.svg` | Ícones e wordmark do GYM 12 (gerados por brand-assets.mjs); favicon (SVG e 32 px) só com o "12" em lime. |
 | 2026-11-06 | `brand/manifest.json` | Ícones 192 e 512 "any" e 512 "maskable" do GYM 12. |
 | 2026-11-06 | `docs/gym12/capturas/fase3/` | Capturas da identidade visual (390×844, tema escuro e claro) e das correções. |
+| 2026-11-06 | `frontend/src/gym12/Licencas.jsx` | Tela "Licenças" (Ajustes → Sobre → Licenças), o único lugar que cita o openGym: frase da base (AGPL-3.0, sem garantia), código-fonte do GYM 12 (`BRAND.source`) com versão e commit do build, direitos da AGPL, texto completo da AGPL, NOTICE.md, aviso da Gym visual palavra por palavra (de `catalogue/media/NOTICE.md`) + gymvisual.com, fontes (OFL 1.1, textos abríveis) e bibliotecas do bundle. Textos longos buscados em `licencas/` (funcionam sem rede: estão na LAZY do service worker). |
+| 2026-11-06 | `frontend/src/gym12/LicencasTeste.jsx` | Variante da tela de Licenças do ambiente de teste: faixa "Ambiente de teste — variação da tela de Licenças (conteúdo a definir pelo time)" + a mesma tela. Só entra no build com `GYM12_AMBIENTE=teste` e `VITE_TESTE_LICENCA=1` (o plugin troca o import); o conteúdo final virá do time do dono. |
+| 2026-11-06 | `frontend/src/gym12/teste-licenca.js` | O texto da faixa da variante (importado só pela variante e pelo plugin/pós-build). |
+| 2026-11-06 | `frontend/src/gym12/SettingsBits.jsx` | `LicencasRow` (linha "Licenças" em Sobre) e `SobreVersao` (bloco da versão do GYM 12, com "Ver licenças"). |
+| 2026-11-06 | `frontend/src/gym12/vite-plugin.js` | `config`: travas do ambiente (`checarAmbiente`, função pura: `VITE_TESTE_LICENCA` só com `GYM12_AMBIENTE=teste` e, no Cloudflare Pages, só no branch `teste-licenca`; senão o build falha com a mensagem em pt-BR) e `__GYM12_COMMIT__` (hash curto do git). `resolveId`: troca `Licencas.jsx` pela variante só no build de teste. `generateBundle`: `dist/licencas/` (LICENSE.txt, NOTICE.md, OFL-*.txt e `terceiros.json`, as bibliotecas de node_modules que têm módulo no bundle, com versão, licença, copyright e texto da licença). Ambiente de teste: meta robots noindex, `X-Robots-Tag: noindex, nofollow` em `/*` no `_headers` e `robots.txt` com `Disallow: /`; produção sem mudança. |
+| 2026-11-06 | `frontend/src/gym12/scripts/postbuild.mjs` | Recusa mídia sem `exercise-media/NOTICE.md`, falta de algum texto de `licencas/`, e a faixa da variante de teste em qualquer arquivo quando `GYM12_AMBIENTE` não é `teste`; põe `licencas/*` na LAZY do service worker; informa o tamanho total do dist. |
+| 2026-11-06 | `scripts/gym12-build.sh` | Mídia dos exercícios por padrão (`GYM12_MEDIA=1`; `GYM12_MEDIA=0` tira); `GYM12_DIST` escolhe a pasta de saída. |
+| 2026-11-06 | `scripts/gym12-build-teste.sh` | Build do ambiente de teste em `frontend/dist-teste` (`GYM12_AMBIENTE=teste`, `VITE_TESTE_LICENCA=1`). Publicar só em `--branch teste-licenca`. |
+| 2026-11-06 | `frontend/src/gym12/i18n-overlay.js` | `tagKeys`: as etiquetas de músculo, parte do corpo, tipo e equipamento (valores do catálogo, mais "já incluído", "já adicionado", "sem exercícios") em pt-BR com só a 1ª letra maiúscula. |
+| 2026-11-06 | `frontend/src/gym12/gym12.css` | Tela de Licenças (texto no tamanho e na cor do corpo, textos completos em mono com rolagem própria), link "Ver licenças" de Sobre, faixa da variante de teste; em pt-BR, etiquetas (.tag), linha "músculo · equipamento" das listas e filtros de Exercícios sem o `capitalize` do upstream (sentence case vindo da camada de tradução). |
+| 2026-11-06 | `frontend/src/gym12/ambiente.test.js` | Testes: travas do ambiente (função pura e build de produção com a flag), troca da variante, noindex, checagens do pós-build (NOTICE da mídia, faixa de teste, licencas/), bibliotecas do bundle. |
+| 2026-11-06 | `frontend/src/gym12/licencas.test.jsx` | Testes: seções da tela de Licenças na ordem, frase exata, links, versão/commit, AGPL e NOTICE abrindo, aviso da mídia igual ao do catálogo; bloco da versão de Sobre sem openGym. |
+| 2026-11-06 | `frontend/src/gym12/i18n-overlay.test.js` | Testes: etiquetas em sentence case só em pt-BR e o CSS sem capitalize. |
+| 2026-11-06 | `docs/gym12/capturas/fase5/` | Capturas da verificação (390×844): Sobre, Licenças, AGPL, avisos, exercício com mídia da mesma origem, variante de teste. |
 
 ## Atualização mensal
 

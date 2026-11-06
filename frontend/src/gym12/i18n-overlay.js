@@ -66,6 +66,24 @@ export const sentenceCased = names => {
   return out
 }
 
+// Etiquetas de músculo, parte do corpo e equipamento em pt-BR com a 1ª letra maiúscula ("Posteriores
+// de coxa", "Peso corporal"): o pacote as traz em minúsculas e o upstream as punha em Title Case
+// pelo CSS (`capitalize`: "Posteriores De Coxa"). O gym12.css tira o capitalize das etiquetas em
+// pt-BR; aqui cada uma ganha só a maiúscula inicial. As chaves são os valores do catálogo (bp, eq,
+// tg, mg, sm, cat) e as três etiquetas de texto que também ficam em .tag.
+export const TAG_UI_KEYS = ['already in', 'already added', 'no exercises']
+export async function tagKeys() {
+  const keys = new Set(TAG_UI_KEYS)
+  try {
+    const { EXDB } = await import('../lib/exercises-data.js')
+    for (const e of EXDB) {
+      for (const f of ['bp', 'eq', 'tg', 'mg', 'cat']) if (e[f]) keys.add(e[f])
+      for (const m of e.sm || []) keys.add(m)
+    }
+  } catch { /* sem o catálogo, só as etiquetas de texto */ }
+  return keys
+}
+
 /**
  * { ui, names } do GYM 12 para o idioma `lang`, dados os pacotes já carregados: `dict` (frases,
  * vazio no inglês) e `names` (nomes de exercícios, ou null). Fora do build do GYM 12: { ui: {}, names: {} }.
@@ -78,6 +96,10 @@ export async function overlayFor(lang, dict = {}, names = null) {
     const load = async p => { try { return (await p).default || {} } catch { return {} } }
     const [ptBRui, ptBRnames] = await Promise.all([load(import('./locales/pt-BR.ui.js')), load(import('./locales/pt-BR.names.js'))])
     for (const [k, v] of Object.entries(ptBRui)) ui[k] = renameValue(v)
+    for (const k of await tagKeys()) {
+      const v = k in ui ? ui[k] : dict[k]
+      if (typeof v === 'string') ui[k] = sentenceCase(v)
+    }
     return { ui, names: sentenceCased({ ...(names || {}), ...ptBRnames }) }
   }
   return { ui, names: {} }

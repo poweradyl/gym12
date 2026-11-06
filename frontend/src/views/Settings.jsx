@@ -33,7 +33,8 @@ import { effectiveLang } from '../lib/default-lang.js'
 import { DEMO, REPO } from '../lib/demo.js'
 import { STANDALONE, BRAND } from '../gym12/flags.js' // GYM 12 (src/gym12)
 import { markBackup } from '../gym12/backup.js'
-import { AccountLine, AccountSection } from '../gym12/SettingsBits.jsx'
+import { AccountLine, AccountSection, LicencasRow, SobreVersao } from '../gym12/SettingsBits.jsx'
+import Licencas from '../gym12/Licencas.jsx'
 import BackupReminder from '../gym12/BackupReminder.jsx'
 import { MOBILE, isAndroid, shareExport, shareExportBlob, syncReminder } from '../lib/mobile.js'
 import { NUDGE_COPY, NUDGE_TONES, toneOf } from '../lib/nudge.js'
@@ -552,6 +553,7 @@ export default function Settings({ page = null, find = null, via = null, entryKe
     })} />
 
   const pages = {
+    ...(STANDALONE && { licencas: () => <Licencas /> }), // GYM 12: Sobre → Licenças
     modules: () => <ModulesPage />,
     watch: () => <WatchSettingsPage />,
     integrations: () => <IntegrationsPage android={android} ios={ios} />,
@@ -1181,13 +1183,14 @@ export default function Settings({ page = null, find = null, via = null, entryKe
       {/* The version, where the support template tells people to look for it. On the phone
           build there is no address bar and no about box, so without this there is no way to tell
           which build you are running, or whether an update actually installed. */}
-      <div className="dim small sp-version">
-        {STANDALONE ? BRAND.name : 'openGym'} v{__APP_VERSION__} · {t('free & open source (AGPL v3)')}<br />
-        {!STANDALONE && <><a href="https://github.com/DuarteSantos8/openGym" target="_blank" rel="noopener">{t('Source code')}</a><br /></>}
+      {STANDALONE && <LicencasRow open={() => open('licencas')} />}
+      {STANDALONE ? <SobreVersao version={__APP_VERSION__} license={t('free & open source (AGPL v3)')} open={() => open('licencas')} /> : <div className="dim small sp-version">
+        openGym v{__APP_VERSION__} · {t('free & open source (AGPL v3)')}<br />
+        <a href="https://github.com/DuarteSantos8/openGym" target="_blank" rel="noopener">{t('Source code')}</a><br />
         {/* Attribution the media licence asks for word for word (agreement §8c), so it is not translated */}
         Exercise media © Aliaksandr Makatserchyk, <a href="https://gymvisual.com/" target="_blank" rel="noopener">Gym visual</a>, gymvisual.com.
-        Media licensed for use in openGym only; see {STANDALONE ? 'NOTICE.md' : <a href="https://github.com/DuarteSantos8/openGym/blob/main/NOTICE.md" target="_blank" rel="noopener">NOTICE.md</a>}
-      </div>
+        Media licensed for use in openGym only; see <a href="https://github.com/DuarteSantos8/openGym/blob/main/NOTICE.md" target="_blank" rel="noopener">NOTICE.md</a>
+      </div>}
     </>,
 
     account: () => <>

@@ -2,7 +2,8 @@
 // GYM 12: o pós-build. Roda depois de `vite build --config vite.gym12.config.js` (scripts/gym12-build.sh):
 //   node src/gym12/scripts/postbuild.mjs dist
 //
-// 1. GYM12_MEDIA=1: copia a mídia dos exercícios (scripts/catalogue/stage-media.mjs <dist>).
+// 1. GYM12_MEDIA=1 (o padrão de scripts/gym12-build.sh): copia a mídia dos exercícios, byte a byte
+//    (scripts/catalogue/stage-media.mjs <dist>), com o aviso exercise-media/NOTICE.md.
 // 2. Service worker: põe na lista LAZY (já carimbada em dist/sw.js, nunca em public/sw.js) os
 //    pacotes pt-BR (interface, instruções, nomes, e o pt.js de que o pt-BR herda) e as fontes
 //    woff2 que ainda não estejam no precache. O build do upstream deixa os pacotes de idioma de
@@ -11,11 +12,16 @@
 // 3. Checagens que derrubam o build (código de saída 1):
 //    - endereço de provedor de IA em qualquer arquivo;
 //    - "opengym.ch" em JavaScript fora dos pacotes de tradução e das ocorrências revisadas abaixo;
-//    - mais de 20.000 arquivos, ou um arquivo com mais de 25 MiB (limites do Cloudflare Pages).
+//    - mais de 20.000 arquivos, ou um arquivo com mais de 25 MiB (limites do Cloudflare Pages);
+//    - mídia copiada sem o exercise-media/NOTICE.md;
+//    - faltando um texto de dist/licencas/ (tela de Licenças);
+//    - fora do ambiente de teste (GYM12_AMBIENTE != teste): a faixa da variante de teste da tela
+//      de Licenças em qualquer arquivo (ela nunca pode chegar à produção).
 import { existsSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join, relative, resolve, sep } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+import { LICENCA_ARQUIVOS, TERCEIROS, TESTE_BANNER } from '../vite-plugin.js'
 
 const HERE = fileURLToPath(new URL('.', import.meta.url))
 const REPO = resolve(HERE, '../../../..')
@@ -65,8 +71,10 @@ export function strayOpengym(text) {
  * `packs` os caminhos relativos ('assets/x.js') dos chunks que só têm pacotes de tradução;
  * `read(file)` lê o texto de um arquivo (injetável nos testes).
  */
-export function checkFiles(files, { packs = [], read = f => readFileSync(f.abs, 'utf8') } = {}) {
+export function checkFiles(files, { packs = [], read = f => readFileSync(f.abs, 'utf8'), teste = false } = {}) {
   const problems = []
+  const rels = new Set(files.map(f => f.rel))
+  if (files.some(f => f.rel.startsWith('exercise-media/')) && !rels.has('exercise-media/NOTICE.md')) problems.push('A mídia dos exercícios está no dist sem o aviso exercise-media/NOTICE.md.')
   if (files.length > MAX_FILES) problems.push(`São ${files.length} arquivos no dist; o limite é ${MAX_FILES}.`)
   for (const f of files) {
     if (f.size > MAX_BYTES) problems.push(`${f.rel} tem ${(f.size / 1048576).toFixed(1)} MiB; o limite por arquivo é 25 MiB.`)
@@ -77,11 +85,18 @@ export function checkFiles(files, { packs = [], read = f => readFileSync(f.abs, 
     const text = read(f)
     const ai = text.match(AI_RE)
     if (ai) problems.push(`${f.rel} contém endereço de provedor de IA (${ai[0]}).`)
+    if (!teste && text.includes(TESTE_BANNER)) problems.push(`${f.rel} contém a variante de teste da tela de Licenças; ela só pode existir no build com GYM12_AMBIENTE=teste.`)
     if (/\.m?js$/.test(f.rel) && !packSet.has(f.rel)) {
       for (const s of strayOpengym(text)) problems.push(`${f.rel} contém "opengym.ch" fora do permitido: …${s.snippet.replace(/\s+/g, ' ')}…`)
     }
   }
   return problems
+}
+
+/** Os textos da tela de Licenças que precisam estar no dist (vêm do plugin): os que faltam, em pt-BR. */
+export function checkLicencas(files) {
+  const rels = new Set(files.map(f => f.rel))
+  return [...Object.keys(LICENCA_ARQUIVOS), TERCEIROS].filter(rel => !rels.has(rel)).map(rel => `Faltou ${rel} (tela de Licenças).`)
 }
 
 export const checkDist = (dir, opts = {}) => checkFiles(walk(dir), opts)
@@ -107,9 +122,9 @@ export function addToLazy(sw, extra) {
   return { sw: sw.replace(LAZY_RE, () => 'const LAZY = ' + JSON.stringify(JSON.stringify(next))), added }
 }
 
-/** O que o pós-build quer no precache: os chunks pt-BR e as fontes woff2, fora o que o index.html já cita. */
+/** O que o pós-build quer no precache: os chunks pt-BR, as fontes woff2 e os textos de licencas/, fora o que o index.html já cita. */
 export function lazyExtras(files, info, indexHtml = '') {
-  const want = [...(info?.ptBR || []), ...files.filter(f => /^assets\/[^/]+\.woff2$/.test(f.rel)).map(f => f.rel)]
+  const want = [...(info?.ptBR || []), ...files.filter(f => /^assets\/[^/]+\.woff2$/.test(f.rel) || /^licencas\/[^/]+$/.test(f.rel)).map(f => f.rel)]
   return want.map(f => './' + f).filter(u => !indexHtml.includes(u.slice(2)))
 }
 
@@ -142,9 +157,10 @@ export function main(argv = process.argv.slice(2)) {
   } catch (e) { fail('Não consegui atualizar a lista LAZY do service worker: ' + e.message) }
 
   const files = walk(dist)
-  const problems = checkFiles(files, { packs: info.packs })
+  const problems = [...checkLicencas(files), ...checkFiles(files, { packs: info.packs, teste: process.env.GYM12_AMBIENTE === 'teste' })]
   if (problems.length) fail(problems.map(p => ' - ' + p).join('\n'))
-  console.log(`[gym12] pós-build ok: ${files.length} arquivos; ${added.length} acrescentados à LAZY do service worker` + (added.length ? ` (${added.join(', ')})` : '') + '.')
+  const bytes = files.reduce((n, f) => n + f.size, 0)
+  console.log(`[gym12] pós-build ok: ${files.length} arquivos, ${(bytes / 1048576).toFixed(1)} MiB; ${added.length} acrescentados à LAZY do service worker` + (added.length ? ` (${added.join(', ')})` : '') + '.')
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main()

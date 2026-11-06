@@ -231,3 +231,47 @@
    sentence case dos nomes em pt-BR ("Supino Reto Com Barra"). Só em pt-BR, onde o nome vem do
    pacote com a caixa certa. */
 :root:lang(pt-BR) .wl-summary span[style*="capitalize"] { text-transform: none !important }
+
+/* ------------------------------------------------------- tela de Licenças -- */
+/* gym12/Licencas.jsx. Texto de leitura no tamanho e na cor do corpo (bone no escuro), nada miúdo
+   nem apagado; os textos completos em mono, quebrando a linha, com rolagem própria. */
+:root .g12-lic-body { padding: 14px 16px }
+:root .g12-lic-body + .g12-lic-link,
+:root .g12-lic-link + .g12-lic-body,
+:root .g12-lic-body + .lrow { border-top: 0.5px solid var(--sep) }
+:root .g12-lic-p { margin: 0; font-size: var(--fs-callout); line-height: 1.5; color: var(--label) }
+:root .g12-lic-p + .g12-lic-p { margin-top: 10px }
+:root .g12-lic-lead { font-size: var(--fs-body) }
+:root .g12-lic-mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--fs-subhead) }
+:root .g12-lic-p a { color: var(--acc-ink); text-decoration: underline }
+:root .g12-lic-link { color: inherit; text-decoration: none }
+:root .g12-lic-toggle { width: 100%; text-align: start }
+:root .g12-lic-full { padding: 0 12px 12px }
+:root .g12-lic-pre {
+  margin: 0; padding: 12px; max-height: 60vh; overflow: auto; -webkit-overflow-scrolling: touch;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .875rem; line-height: 1.5; color: var(--label);
+  background: var(--surface-2); border-radius: 10px;
+  -webkit-user-select: text; user-select: text;
+}
+/* Sobre: o "Ver licenças" do bloco da versão é um link legível. */
+:root .g12-sobre-versao a { color: var(--acc-ink); text-decoration: underline }
+/* A faixa da variante de teste (LicencasTeste.jsx, só no build de teste). */
+:root .g12-lic-teste {
+  margin: 0 0 18px; padding: 12px 14px; border-radius: 12px;
+  border: 1px solid var(--orange); color: var(--label);
+  font-size: var(--fs-callout); line-height: 1.4; font-weight: 600;
+}
+
+/* -------------------------------------------- músculo e equipamento em pt-BR -- */
+/* O upstream põe `capitalize` nas etiquetas (.tag: ficha do exercício, foco do treino) e na linha
+   "músculo · equipamento" das listas (.ss.capitalize, .ss .capitalize), e nos filtros de
+   Exercícios (parte do corpo, tipo e equipamento: .lib-filters, .lib-fsheet): em pt-BR saía
+   "Posteriores De Coxa". Aqui sai sem o capitalize; a camada de tradução (i18n-overlay.js,
+   tagKeys) já entrega cada etiqueta com só a 1ª letra maiúscula ("Posteriores de coxa"). */
+:root:lang(pt-BR) .tag,
+:root:lang(pt-BR) .ss.capitalize,
+:root:lang(pt-BR) .ss .capitalize,
+:root:lang(pt-BR) .lib-filters .chip,
+:root:lang(pt-BR) .lib-fsheet .chip { text-transform: none }
