@@ -1,0 +1,5 @@
+/* GYM 12 · gravação: só no build de gravação (o plugin de gravação importa este arquivo no topo do
+   gym12/boot.js). Peso corporal, medidas e fotos já saem pelos módulos desligados no histórico de
+   exemplo (./seed.js); o que sobra é o "Fotos e vídeos" do resumo do treino (components/
+   WorkoutMedia.jsx), que não depende de módulo: fora das telas gravadas. */
+.wmedia { display: none !important }

@@ -3,6 +3,8 @@
 // No build do GYM 12, antes de o app ler o armazenamento:
 //  - grava `gym_demo_seeded_v1`: o boot demo do upstream (useStore.js) acha que já semeou e cai no
 //    perfil vazio de freshState(). O app começa VAZIO, sem dados de exemplo;
+//    (no build de gravação, GRAVACAO, a chave NÃO é gravada: o boot demo semeia o histórico de
+//    exemplo da gravação, gym12/gravacao/seed.js, que o plugin de gravação põe no lugar do stub);
 //  - grava `gym_default_lang` = pt-BR: o cache que lib/default-lang.js consulta para quem nunca
 //    escolheu idioma. Quem escolhe outro no seletor fica com ele (só grava se não existir);
 //  - guarda o `beforeinstallprompt` e o `appinstalled` para a futura página de instalação;
@@ -17,7 +19,7 @@
 // O CSS da marca (./gym12.css, com as fontes) não é importado aqui: o plugin do GYM 12
 // (vite-plugin.js) acrescenta o import a este arquivo só no build do GYM 12, para que o build do
 // upstream e os testes nunca carreguem as cores, as fontes nem os arquivos woff2.
-import { STANDALONE, DEFAULT_LANG } from './flags.js'
+import { STANDALONE, GRAVACAO, DEFAULT_LANG } from './flags.js'
 
 export const SEEDED_KEY = 'gym_demo_seeded_v1'
 export const LANG_KEY = 'gym_default_lang'
@@ -25,10 +27,10 @@ export const LANG_KEY = 'gym_default_lang'
 const storage = () => { try { return globalThis.localStorage || null } catch { return null } }
 
 /** Grava as chaves de início vazio e pt-BR, só as que ainda não existem. */
-export function seedKeys(ls = storage()) {
+export function seedKeys(ls = storage(), { gravacao = GRAVACAO } = {}) {
   if (!ls) return
   try {
-    if (ls.getItem(SEEDED_KEY) === null) ls.setItem(SEEDED_KEY, '1')
+    if (!gravacao && ls.getItem(SEEDED_KEY) === null) ls.setItem(SEEDED_KEY, '1')
     if (ls.getItem(LANG_KEY) === null) ls.setItem(LANG_KEY, DEFAULT_LANG)
   } catch { /* armazenamento bloqueado: o app abre como der */ }
 }

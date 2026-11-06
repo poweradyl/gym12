@@ -58,6 +58,7 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/views/Measurements.jsx` | O mesmo `oneYear()` nos botões de período das medidas. |
 | 2026-11-06 | `frontend/src/lib/starter.js` | Nomes das rotinas dos modelos de divisão por `starterName()` (`gym12/rotulos.js`): em pt-BR no GYM 12 ("Empurrar", "Puxar", "Pernas", "Superior A", "Corpo inteiro A"…); fora dele, os nomes em inglês do upstream. |
 | 2026-11-06 | `frontend/src/sheets.jsx` | Selo de recorde por `prBadge()`/`prCount()` (`gym12/rotulos.js`) no lugar do "PR" e do "{n} PR" fixos (histórico do exercício, treino salvo e lista de treinos): "Recorde", "1 recorde", "2 recordes" em pt-BR no GYM 12; sem tradução, exatamente o texto do upstream. |
+| 2026-11-06 | `.gitignore` | `frontend/dist-gravacao/` (saída do build de gravação do Reel). |
 
 ## Arquivos novos
 
@@ -139,6 +140,17 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/gym12/rotulos.js` | `prBadge()` e `prCount(n)`: o selo de recorde pela camada de tradução (chaves em variável, como o `oneYear()`). |
 | 2026-11-06 | `frontend/src/gym12/gym12.css` | Explorar músculos em pt-BR: chips dos músculos abaixo do mapa e de parte do corpo/equipamento depois da busca sem o `capitalize` do `.chip` ("Posteriores de coxa", não "Posteriores De Coxa"). |
 | 2026-11-06 | `frontend/src/gym12/termos-video.test.js` | Testes: "Everything else", selo de recorde em pt-BR e no upstream, `sheets.jsx` sem o "PR" fixo, CSS dos chips de músculo. |
+| 2026-11-06 | `frontend/vite.gravacao.config.js` | Build de gravação do Reel (só localhost, nunca publicado), sobre o `vite.gym12.config.js` sem mudá-lo: plugin de gravação, `__GYM12_GRAVACAO__`, saída `dist-gravacao/`, `vite preview` em 127.0.0.1:4430. |
+| 2026-11-06 | `frontend/src/gym12/gravacao/vite-plugin.js` | Plugin de gravação: o stub `stubs/demoSeed.js` passa a reexportar `gravacao/seed.js` (hook `load`, só neste build) e o `boot.js` importa antes de tudo `relogio.js`, `ganchos.js` e `gravacao.css`. |
+| 2026-11-06 | `frontend/src/gym12/gravacao/seed.js` | Histórico de exemplo da gravação no formato do `lib/demoSeed.js`: Treino A (supino reto com barra, supino inclinado com halteres, crucifixo na máquina, tríceps pulley com corda, tríceps francês em pé com halter), B (costas e bíceps) e C (pernas); 9 semanas, 25 sessões; supino subindo até 40 kg × 10 em 30/10 (42,5 hoje é recorde); sem pesagens, medidas, fotos; módulos Corpo e Níveis de força desligados; pt-BR; dica de deslizar já vista. |
+| 2026-11-06 | `frontend/src/gym12/gravacao/relogio.js` | Relógio fixo do build de gravação: começa em 06/11/2026 18:30 (Brasília) e anda; desligado quando o gravador controla o tempo (`__G12_RELOGIO_LIVRE__`). |
+| 2026-11-06 | `frontend/src/gym12/gravacao/ganchos.js` | `window.__g12gravacao` (ler, esvaziar e acrescentar exercícios de uma rotina pelo `update` do store), para a gravação "rotina". Store por import dinâmico (não muda a ordem dos módulos). |
+| 2026-11-06 | `frontend/src/gym12/gravacao/gravacao.css` | Só na gravação: sem o "Fotos e vídeos" do resumo do treino. |
+| 2026-11-06 | `frontend/src/gym12/gravacao/gravar.mjs` | O gravador (Playwright fora do projeto, `GYM12_TOOLS`): 390×844 escala 3, isMobile/hasTouch, sem rede (só localhost), `page.clock` parado e animações CSS/WAAPI posicionadas no tempo virtual, 30 fps sem quadro perdido, toques reais, versões normal e borrada do mesmo estado, prévia em MP4 e `manifesto.json` (toques, eventos e retângulos em pixels de 1170×2532). Saída em `~/migracao-n8n/agencia-reels/reels/R-001/capturas/`. |
+| 2026-11-06 | `frontend/src/gym12/gravacao/gravacao.test.js` | Testes: histórico (rotinas, nomes pt-BR, 25 sessões, supino 40 × 10 e 42,5 recorde, sem peso corporal), relógio, plugin, configuração, produção sem gravação, boot, ganchos, gravador. |
+| 2026-11-06 | `frontend/src/gym12/flags.js` | `GRAVACAO` (`__GYM12_GRAVACAO__`, só no build de gravação; falso no resto). |
+| 2026-11-06 | `frontend/src/gym12/boot.js` | `seedKeys` não grava `gym_demo_seeded_v1` no build de gravação (o boot demo semeia o histórico de exemplo). |
+| 2026-11-06 | `scripts/gym12-gravacao.sh` | Build de gravação (`frontend/dist-gravacao`, com a mídia) e, com `--serve`, o `vite preview` em 127.0.0.1:4430. |
 
 ## Deploy
 
@@ -165,6 +177,19 @@ npx wrangler@3.114.17 pages deploy frontend/dist --project-name gym12 --branch g
   (variante de Licenças, `scripts/gym12-build-teste.sh`, travas do plugin) continua no
   repositório, sem uso; nada é publicado no branch `teste-licenca`.
 - Web Analytics: ligado pelo painel do Cloudflare (o token não tem permissão para isso).
+
+## Build de gravação (Reel)
+
+Só para gravar as telas do app em localhost; nunca é publicado e não muda o build de produção.
+
+```sh
+scripts/gym12-gravacao.sh --serve                                  # build + mídia + http://127.0.0.1:4430/
+GYM12_TOOLS=~/jrsa node frontend/src/gym12/gravacao/gravar.mjs     # outro terminal: as 7 gravações
+GYM12_TOOLS=~/jrsa node frontend/src/gym12/gravacao/gravar.mjs --so recorde,grafico
+```
+
+`GYM12_TOOLS` é qualquer pasta com `node_modules/playwright` (o Playwright não é dependência do
+projeto). Saída em `~/migracao-n8n/agencia-reels/reels/R-001/capturas/` (`--saida` muda).
 
 ## Atualização mensal
 

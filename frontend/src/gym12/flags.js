@@ -3,8 +3,13 @@
 // O `(import.meta.env || {})` é obrigatório: módulos que importam este arquivo também rodam em Node.
 // `__GYM12_STANDALONE__` é definido (true) só por vite.gym12.config.js: vira constante no build, e o
 // minificador apaga os ramos do upstream que o GYM 12 esconde (links, textos e URLs mortos no bundle).
-/* global __GYM12_STANDALONE__ */
+/* global __GYM12_STANDALONE__, __GYM12_GRAVACAO__ */
 export const STANDALONE = typeof __GYM12_STANDALONE__ === 'boolean' ? __GYM12_STANDALONE__ : (import.meta.env || {}).VITE_STANDALONE === '1'
+
+// O build de gravação (vite.gravacao.config.js, src/gym12/gravacao/): o GYM 12 com o histórico de
+// exemplo da gravação do Reel e o relógio fixo. `__GYM12_GRAVACAO__` só existe nesse build; no
+// build de produção, no upstream e no vitest fica falso e o minificador apaga os ramos.
+export const GRAVACAO = typeof __GYM12_GRAVACAO__ === 'boolean' ? __GYM12_GRAVACAO__ : false
 
 export const BRAND = {
   name: 'GYM 12',
