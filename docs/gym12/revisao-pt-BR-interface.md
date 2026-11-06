@@ -44,7 +44,7 @@ séries efetivas, posteriores de coxa…) e alguns restos de Portugal (ex.: "Gé
 | Drop set / drops | **drop-set** / drops | antes "série decrescente"/"quedas" |
 | Rest-pause burst | **mini-série** | antes "rajada" |
 | Back-off sets | séries de back-off | antes "séries descendentes" |
-| Superset | superset | mantido (o app permite 3+ exercícios, então "bi-set" seria errado) |
+| Superset | **bi-set** | 2026-11-06: decisão do dono, "Bi-set" no início da frase e "bi-set" no meio, em todo o pt-BR (antes "superset", mantido porque o app permite 3+ exercícios) |
 | PR / new best | recorde / recorde pessoal | |
 | Routine | rotina | |
 | Plan | plano | |
@@ -135,7 +135,7 @@ séries efetivas, posteriores de coxa…) e alguns restos de Portugal (ex.: "Gé
 | Share weigh-ins and workouts with the phone’s health app. | Compartilhe pesagens e treinos com o aplicativo de saúde do celular. | Compartilhe pesagens e treinos com o app de saúde do celular. |
 | Show me | Me mostra | Mostrar |
 | Tap Add and pick your new routine. The loop runs in that order. | Toque em Adicionar e escolha sua rotina nova. A rotação segue essa ordem. | Toque em Adicionar e escolha sua rotina nova. O rodízio segue essa ordem. |
-| Tap an exercise any time to change sets, reps or weight. The arrows reorder, the link makes a superset. | Toque num exercício quando quiser para mudar séries, repetições ou peso. As setas reordenam, o link vira um superset. | Toque num exercício quando quiser para mudar séries, repetições ou carga. As setas reordenam, o link vira um superset. |
+| Tap an exercise any time to change sets, reps or weight. The arrows reorder, the link makes a superset. | Toque num exercício quando quiser para mudar séries, repetições ou peso. As setas reordenam, o link vira um superset. | Toque num exercício quando quiser para mudar séries, repetições ou carga. As setas reordenam, o link vira um bi-set. |
 | Tap one to set its sets, reps and weight, or + to take the usual. Close the list when you’re done. | Toque em um para definir séries, repetições e peso, ou em + para o de sempre. Feche a lista quando terminar. | Toque em um para definir séries, repetições e carga, ou em + para o de sempre. Feche a lista quando terminar. |
 | Tap Schedule to put it on a day. | Toque em Horário para colocar a rotina num dia. | Toque em Agenda para colocar a rotina num dia. |
 | The big Start button | O grande botão Começar | O botão Começar |

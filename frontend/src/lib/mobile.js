@@ -15,6 +15,7 @@ import { effectiveRoutineIds } from './history.js'
 import { NUDGE_COPY, lineIndex, nudgeFor, nudgeMinute, toneOf } from './nudge.js'
 import { excusedOn } from './day-notes.js'
 import { stateJson } from './state-json.js'
+import { autoBackupKey, backupFileName } from '../gym12/backup.js' // GYM 12 (src/gym12): nome dos backups
 
 export const MOBILE = import.meta.env.VITE_MOBILE === '1'
 
@@ -346,7 +347,9 @@ export const AUTO_BACKUP_DIR = 'openGym'
 export const AUTO_BACKUP_KEEP = 14
 // Only the exact names writeAutoBackup gives its files are ever pruned; anything else someone
 // keeps in the folder is theirs.
-const AUTO_BACKUP_NAME = /^opengym-backup-\d{4}-\d{2}-\d{2}(-[2-9])?\.json$/
+// GYM 12: also "gym12-backup-…", the name the GYM 12 build gives its copies (gym12/backup.js), so
+// old "opengym-backup-…" and new copies are pruned together. Same rule as BackupFolderPlugin.java.
+const AUTO_BACKUP_NAME = /^(?:opengym|gym12)-backup-\d{4}-\d{2}-\d{2}(-[2-9])?\.json$/
 
 // Android's scoped storage lets an install write over, list and delete only the files it wrote
 // itself. After a reinstall, or with the test build beside the real one, today's name can belong
@@ -373,7 +376,7 @@ export async function writeAutoBackup(state) {
   // day then went without a copy, silently, while the newest file there was another install's.
   let name = null
   for (const suffix of ['', '-2', '-3', '-4', '-5', '-6', '-7', '-8', '-9']) {
-    const n = `opengym-backup-${day}${suffix}.json`
+    const n = backupFileName(day, suffix + '.json') // GYM 12
     try { await write(n); name = n; break } catch (e) { /* owned by another install, or the disk said no: the next name */ }
   }
   if (!name) return   // best effort — the private mirror in Directory.Data still has the data
@@ -392,8 +395,9 @@ async function pruneAutoBackups({ Filesystem, Directory }, written) {
     // below the others: it is one of the AUTO_BACKUP_KEEP whatever its date says.
     .filter(n => AUTO_BACKUP_NAME.test(n || '') && n !== written)
     // Newest first by the date in the name, which a sync app or a copy cannot disturb the way
-    // it can a modification time.
-    .sort().reverse()
+    // it can a modification time. GYM 12: compared without the prefix (autoBackupKey), so old
+    // "opengym-backup-…" and new "gym12-backup-…" copies sort by date together.
+    .sort((a, b) => (autoBackupKey(a) < autoBackupKey(b) ? 1 : autoBackupKey(a) > autoBackupKey(b) ? -1 : 0))
   for (const n of older.slice(AUTO_BACKUP_KEEP - 1)) {
     try { await Filesystem.deleteFile({ path: `${AUTO_BACKUP_DIR}/${n}`, directory: Directory.Documents }) } catch (e) { /* one stuck file does not stop the rest */ }
   }
@@ -470,7 +474,7 @@ async function releaseFolder(uri) {
 async function writeToChosenFolder(state, day) {
   const folder = await backupFolder()
   if (!folder.uri) return false
-  const name = `opengym-backup-${day}.json`
+  const name = backupFileName(day) // GYM 12
   try {
     await loadFolderPlugin()
     const { ok } = await folderPlugin.check({ uri: folder.uri })

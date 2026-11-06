@@ -52,7 +52,8 @@ public class BackupFolderPlugin extends Plugin {
 
     private static final int RW = Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
     // The only files write and prune touch: "opengym-backup-2026-10-15.json", "...-2.json".
-    static final Pattern BACKUP_NAME = Pattern.compile("opengym-backup-\\d{4}-\\d{2}-\\d{2}(-[2-9])?\\.json");
+    // GYM 12: also "gym12-backup-…" (its builds name the copies so; gym12/backup.js).
+    static final Pattern BACKUP_NAME = Pattern.compile("(?:opengym|gym12)-backup-\\d{4}-\\d{2}-\\d{2}(-[2-9])?\\.json");
     // Writes and listings go through a content provider, which may be a cloud app: off the main
     // thread, and one at a time so two backups never race for the same name.
     private final ExecutorService io = Executors.newSingleThreadExecutor();
@@ -154,7 +155,8 @@ public class BackupFolderPlugin extends Plugin {
                     if (BACKUP_NAME.matcher(child[0]).matches() && !child[0].equals(written)) older.add(child);
                 }
                 // Newest first by the date in the name, as the Documents/openGym prune does.
-                older.sort((a, b) -> b[0].compareTo(a[0]));
+                // GYM 12: by what follows the prefix, so "opengym-" and "gym12-" copies sort by date together.
+                older.sort((a, b) -> dateKey(b[0]).compareTo(dateKey(a[0])));
                 ContentResolver cr = getContext().getContentResolver();
                 for (int i = keep - 1; i < older.size(); i++) {
                     try {
@@ -166,6 +168,12 @@ public class BackupFolderPlugin extends Plugin {
             ret.put("deleted", deleted);
             call.resolve(ret);
         });
+    }
+
+    // GYM 12: "2026-10-15.json" out of "opengym-backup-2026-10-15.json" or "gym12-backup-2026-10-15.json".
+    static String dateKey(String name) {
+        int i = name.indexOf("-backup-");
+        return i < 0 ? name : name.substring(i + 8);
     }
 
     @PluginMethod

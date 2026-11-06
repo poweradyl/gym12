@@ -3,7 +3,7 @@
 // (que é o que vai no backup):
 //   gym12.lastBackup     ms do último export JSON/ZIP concluído (Settings.jsx doExport/doExportZip)
 //   gym12.backupSnooze   ms até quando o "Agora não" cala o lembrete
-import { STANDALONE } from './flags.js'
+import { STANDALONE, BRAND } from './flags.js'
 
 export const LAST_KEY = 'gym12.lastBackup'
 export const SNOOZE_KEY = 'gym12.backupSnooze'
@@ -11,6 +11,24 @@ const DAY = 864e5
 export const REMIND_AFTER_DAYS = 30   // desde o último backup
 export const FIRST_AFTER_DAYS = 7     // nunca exportou: o treino mais antigo tem pelo menos isso
 export const SNOOZE_DAYS = 30
+
+// O nome dos arquivos de backup. No GYM 12 sai "gym12-backup-AAAA-MM-DD.json/.zip" (e
+// "gym12-backup.json" dentro do zip); fora dele, o "opengym-backup" do upstream. Quem já tem
+// backups "opengym-backup-*" continua sendo atendido: a importação do zip e a limpeza dos backups
+// automáticos (AUTO_BACKUP_NAME em lib/mobile.js e BackupFolderPlugin.java) aceitam os dois
+// prefixos (o export manual nunca foi lido pelo nome).
+export const BACKUP_PREFIX = STANDALONE ? 'gym12-backup' : 'opengym-backup'
+export const BACKUP_PREFIXES = STANDALONE ? ['gym12-backup', 'opengym-backup'] : ['opengym-backup']
+/** "gym12-backup-2026-11-06.json" (ou ".zip", ou "-2.json" para o 2º do dia). */
+export const backupFileName = (day, ext = '.json') => `${BACKUP_PREFIX}-${day}${ext}`
+/** O JSON dentro do zip de backup com fotos e vídeos, e os nomes que a importação aceita. */
+export const BACKUP_JSON_NAME = BACKUP_PREFIX + '.json'
+export const BACKUP_JSON_NAMES = BACKUP_PREFIXES.map(p => p + '.json')
+/** A parte de um nome de backup automático depois do prefixo ("2026-11-06-2.json"): a limpeza
+ *  ordena por ela, para os dois prefixos entrarem na mesma ordem de data. */
+export const autoBackupKey = n => String(n).replace(/^[a-z0-9]+-backup-/, '')
+/** O README.txt do zip com "openGym" trocado pelo nome do GYM 12 (só no standalone). */
+export const backupReadme = s => (STANDALONE ? s.replace(/openGym/g, BRAND.name) : s)
 
 const ls = () => { try { return globalThis.localStorage || null } catch { return null } }
 const readMs = key => { try { const v = Number(ls()?.getItem(key)); return Number.isFinite(v) && v > 0 ? v : null } catch { return null } }

@@ -25,21 +25,22 @@ import { mediaStore } from './media-store.js'
 import { setVideosOf } from './set-videos.js'
 import { DEFAULT_LIMITS, MB } from './media-limits.js'
 import { t } from './i18n-core.js'
+import { BACKUP_JSON_NAME, BACKUP_JSON_NAMES, backupReadme } from '../gym12/backup.js' // GYM 12 (src/gym12): gym12-backup.json no standalone
 
-export const BACKUP_JSON = 'opengym-backup.json'
+export const BACKUP_JSON = BACKUP_JSON_NAME
 const MEDIA_ENTRY = /^media\/([0-9a-f]{64})\.(jpg|png|webp|gif|mp4|mov|webm)$/
 
-const README = `openGym backup with photos and videos
+const README = backupReadme(`openGym backup with photos and videos
 =====================================
 
-opengym-backup.json  your data - the same file "Export backup (JSON)" writes.
+${BACKUP_JSON.padEnd(19)}  your data - the same file "Export backup (JSON)" writes.
 media/               the photos, GIFs and videos of your own exercises and of your
                      workouts, each named by its SHA-256, plus the small previews
                      shown in lists.
 
 To bring it back: openGym -> Settings -> Data & backup -> Import backup, and pick this .zip as it is.
 Do not unpack and re-zip it: the app reads zips that are stored, not compressed.
-`
+`) // GYM 12: backupReadme diz GYM 12 no standalone
 
 /** The media refs and links of an imported state — each custom exercise's picture and link, each
  *  logged workout's photos and videos, each set's form video — kept only where they pass the same checks as anywhere
@@ -116,7 +117,7 @@ export async function readBackupFile(file) {
   const zip = await looksLikeZip(file)
   if (zip) {
     const entries = await readZip(file)
-    const json = entries.find(e => e.name === BACKUP_JSON)
+    const json = entries.find(e => e.name === BACKUP_JSON) || entries.find(e => BACKUP_JSON_NAMES.includes(e.name)) // GYM 12: aceita o opengym-backup.json dos zips antigos
     if (!json) throw notBackup()
     state = JSON.parse(await json.blob.text())
     if (!isBackup(state)) throw notBackup()

@@ -16,6 +16,7 @@ import LineChart from '../components/LineChart.jsx'
 import Icon from '../components/Icon.jsx'
 import { Button, NumberField, Section, Segmented, SelectRow, Switch, TextField } from '../components/ui.jsx'
 import { confirmSheet } from '../sheets.jsx'
+import { oneYear } from '../gym12/rotulos.js' // GYM 12 (src/gym12): "1A" em pt-BR
 
 // Every write leaves the list in its one-entry-per-day shape (normalizeMeasurementsState).
 const update = (fn, ...rest) => useStore.getState().update(s => { fn(s); normalizeMeasurementsState(s) }, ...rest)
@@ -234,7 +235,7 @@ export default function Measurements() {
         options={available.map(f => ({ value: f.key, label: t(f.label) }))} />
       </div>}
       <Segmented className="seg-range" value={range} onChange={setRange}
-        options={[{ value: 30, label: '1M' }, { value: 90, label: '3M' }, { value: 365, label: '1Y' }, { value: 0, label: t('All') }]} />
+        options={[{ value: 30, label: '1M' }, { value: 90, label: '3M' }, { value: 365, label: oneYear() }, { value: 0, label: t('All') }]} />
       <div className="chart"><LineChart points={points} h={170} unit={unit} color="var(--teal)" /></div>
     </div>
 

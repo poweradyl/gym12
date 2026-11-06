@@ -50,6 +50,13 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `.gitignore` | `frontend/dist-teste/` (saída do build do ambiente de teste). |
 | 2026-11-06 | `frontend/src/main.jsx` | `<Gym12Gate>` (`gym12/Gate.jsx`) em volta do `<App/>` (import + render, 2 linhas): página de instalação no build do GYM 12; fora dele o Gate só devolve os filhos. |
 | 2026-11-06 | `frontend/src/views/Settings.jsx` | Sobre (standalone): a "Dica" do upstream (Safari/Chrome + "dados de visitante") sai e entra a linha "Instalar o GYM 12" (`InstallRow`, abre `#/instalar`, some no app instalado). Fora do standalone a Dica continua igual. |
+| 2026-11-06 | `frontend/src/views/Settings.jsx` | Export manual (JSON e ZIP) com o nome de `gym12/backup.js` (`backupFileName`): `gym12-backup-AAAA-MM-DD.json/.zip` no standalone, `opengym-backup-…` no upstream. |
+| 2026-11-06 | `frontend/src/lib/mobile.js` | Backup automático e pasta escolhida com o nome de `gym12/backup.js` (`gym12-backup-…` no standalone); a limpeza reconhece `gym12-backup-…` e `opengym-backup-…` (`AUTO_BACKUP_NAME` literal, `(?:opengym|gym12)-backup-…`, igual ao plugin Android — o `android-backup.test.js` do upstream confere os dois) e ordena pela data sem o prefixo (`autoBackupKey`), para os dois nomes conviverem. |
+| 2026-11-06 | `frontend/src/lib/backup-media.js` | Zip com fotos e vídeos: o JSON de dentro se chama `gym12-backup.json` no standalone (README com o nome e "GYM 12"); a importação aceita também o `opengym-backup.json` dos zips antigos. |
+| 2026-11-06 | `frontend/android/app/src/main/java/ch/duartesantos/opengym/BackupFolderPlugin.java` | `BACKUP_NAME` aceita `gym12-backup-…` além de `opengym-backup-…`, e a limpeza ordena pela data sem o prefixo (`dateKey`), igual ao `lib/mobile.js` (não entra no build web do GYM 12; mantém o plugin coerente com o JS). |
+| 2026-11-06 | `frontend/src/views/Stats.jsx` | Botões de período com `oneYear()` (`gym12/rotulos.js`) no lugar do "1Y" fixo: "1A" em pt-BR no GYM 12. |
+| 2026-11-06 | `frontend/src/views/Measurements.jsx` | O mesmo `oneYear()` nos botões de período das medidas. |
+| 2026-11-06 | `frontend/src/lib/starter.js` | Nomes das rotinas dos modelos de divisão por `starterName()` (`gym12/rotulos.js`): em pt-BR no GYM 12 ("Empurrar", "Puxar", "Pernas", "Superior A", "Corpo inteiro A"…); fora dele, os nomes em inglês do upstream. |
 
 ## Arquivos novos
 
@@ -121,6 +128,12 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/gym12/install/install-build.test.js` | Testes: a captura (WebP 440×926, ≤ 80 KB), a cópia pelo plugin e a LAZY do pós-build. |
 | 2026-11-06 | `docs/gym12/capturas/instalacao/` | Capturas de cada caminho da página de instalação (390×844, escala 3; iPhone no WebKit do Playwright, Android/desktop no Chromium), com "reduzir movimento", 360×740 e 430×932, Sobre, app instalado e sem rede. |
 | 2026-11-06 | `docs/gym12/capturas/producao/` | Captura do app ao vivo em produção (390×844). |
+| 2026-11-06 | `frontend/src/gym12/locales/pt-BR.ui.js` | Fase 0 do vídeo: "Superset" → "Bi-set" em todas as 21 frases pt-BR (inclusive "Supersérie" herdada do pt-PT em dois rótulos de acessibilidade), "1Y" → "1A" e "Push / Pull / Legs" → "Empurrar / Puxar / Pernas". |
+| 2026-11-06 | `frontend/src/gym12/backup.js` | Nome dos backups: `BACKUP_PREFIX`/`backupFileName` (`gym12-backup` no standalone), `BACKUP_JSON_NAME(S)`, `autoBackupKey` e `backupReadme`. |
+| 2026-11-06 | `frontend/src/gym12/rotulos.js` | `oneYear()` ("1Y" por `t()` com a chave em variável, para não cobrar a chave dos pacotes do upstream) e `starterName()` com a tabela dos nomes dos modelos de divisão em pt-BR. |
+| 2026-11-06 | `frontend/src/gym12/backup-nome.test.js` | Testes: nomes `gym12-backup` e `opengym-backup`, limpeza com os dois prefixos misturados, zip novo e antigo na importação, README. |
+| 2026-11-06 | `frontend/src/gym12/termos-video.test.js` | Testes: nenhum "superset"/"supersérie" no pt-BR do GYM 12, Bi-set/bi-set, "1A", nomes dos modelos de divisão. |
+| 2026-11-06 | `docs/gym12/revisao-pt-BR-interface.md` | Glossário: Superset → bi-set (decisão do dono). |
 
 ## Deploy
 
