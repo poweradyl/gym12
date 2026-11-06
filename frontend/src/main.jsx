@@ -2,6 +2,7 @@ import './gym12/boot.js' // GYM 12 (src/gym12): no-op outside the GYM 12 build
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
+import { Gym12Gate } from './gym12/Gate.jsx' // GYM 12: install page, children only outside the GYM 12 build
 import { MOBILE } from './lib/mobile.js'
 import { useStore } from './store/useStore.js'
 import { startMediaSync } from './lib/media-sync.js'
@@ -25,7 +26,7 @@ if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
 if (!MOBILE) guardFocusZoom()
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode><App /></StrictMode>
+  <StrictMode><Gym12Gate><App /></Gym12Gate></StrictMode>
 )
 
 // The photos and videos of custom exercises, in every build (the phone and the demo included):

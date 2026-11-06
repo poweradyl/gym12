@@ -9,8 +9,8 @@
 //    só neste build; o upstream e o vitest nunca carregam o CSS nem as fontes).
 //  - transformIndexHtml: título, metas, cor do tema, idioma, os textos do vigia de boot em pt-BR,
 //    os ícones (favicon SVG + PNG 32) e a tela de abertura com o wordmark (brand/wordmark.svg).
-//  - closeBundle: dist/manifest.json a partir de brand/manifest.json, os ícones de brand/ na raiz do
-//    dist e dist/_headers (Cloudflare Pages).
+//  - closeBundle: dist/manifest.json a partir de brand/manifest.json, os ícones de brand/ e a captura
+//    da página de instalação (install-screen.webp) na raiz do dist e dist/_headers (Cloudflare Pages).
 //  - config: as travas do ambiente (checarAmbiente) e as constantes da tela de Licenças
 //    (__GYM12_COMMIT__, o commit deste build).
 //  - generateBundle: dist/licencas/ (LICENSE.txt, NOTICE.md, OFL-*.txt e terceiros.json, as
@@ -71,6 +71,9 @@ const HTML_SWAPS = [
 // Os arquivos de brand/ (gerados por scripts/brand-assets.mjs) que vão para a raiz do dist. Os
 // icon-180/icon-512 do upstream (public/) são sobrescritos.
 export const BRAND_FILES = ['icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'favicon.svg', 'favicon-32.png']
+// A captura do app que a página de instalação mostra no celular (gerada por
+// scripts/install-screen.mjs). Vai para a raiz do dist; o pós-build a põe na LAZY do service worker.
+export const INSTALL_FILES = ['install-screen.webp']
 
 // A tela de abertura do GYM 12 no lugar dos halteres do upstream: ink-950, o wordmark ("GYM" bone +
 // "12" lime, Fraunces em contorno, sem depender de fonte carregada) e um traço lime fino embaixo.
@@ -273,7 +276,7 @@ export default function gym12() {
       if (!existsSync(outDir)) return
       const manifest = JSON.parse(readFileSync(join(REPO, 'brand/manifest.json'), 'utf8'))
       writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n')
-      for (const f of BRAND_FILES) copyFileSync(join(REPO, 'brand', f), join(outDir, f))
+      for (const f of [...BRAND_FILES, ...INSTALL_FILES]) copyFileSync(join(REPO, 'brand', f), join(outDir, f))
       writeFileSync(join(outDir, '_headers'), ambienteTeste(env) ? HEADERS + HEADERS_TESTE : HEADERS)
       if (ambienteTeste(env)) writeFileSync(join(outDir, 'robots.txt'), ROBOTS_TXT)
       if (info) writeFileSync(join(outDir, '.gym12-build.json'), JSON.stringify(info, null, 2) + '\n')

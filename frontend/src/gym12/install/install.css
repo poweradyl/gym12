@@ -1,0 +1,253 @@
+/* GYM 12: a página de instalação (install/InstallLanding.jsx, docs/gym12/INSTALL.md). Importado só pela
+   página, que só o build do GYM 12 carrega. Os tokens (--g12-*) vêm de gym12.css; a página é sempre
+   escura (ink), qualquer que seja o tema do app.
+
+   Medidas do INSTALL.md: 390×844, gutter 20 px (16 px abaixo de 375 px), título Fraunces 40/44,
+   cartão ink-900 com borda ink-700 e raio 20, borda 6 ink-700 no celular. O celular ficou em
+   184×376 (a proporção dos ~220×450, raio 32) e os espaços mais curtos para o começo do cartão de
+   instruções (no Android, os dois botões) caber na primeira tela de 390×844;
+   botão principal lime em pílula de 56 px, alvos de 44 px ou mais. O rodapé fica em mist-400 (o
+   mist-500 do INSTALL.md dá 3,7:1 sobre ink-950 a 12 px; AA pede 4,5:1). */
+
+.g12i {
+  --g: 20px;
+  box-sizing: border-box;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) calc(env(safe-area-inset-right, 0px) + var(--g)) calc(env(safe-area-inset-bottom, 0px) + 28px) calc(env(safe-area-inset-left, 0px) + var(--g));
+  background: var(--g12-ink-950);
+  color: var(--g12-bone);
+  font-family: var(--g12-sans);
+  font-size: 16px;
+  line-height: 1.45;
+  overflow-x: hidden;
+  overflow-x: clip;
+  max-width: 520px;
+  margin-inline: auto;
+}
+@media (max-width: 374px) { .g12i { --g: 16px } }
+.g12i *, .g12i *::before, .g12i *::after { box-sizing: border-box }
+
+.g12i-offscreen {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+textarea.g12i-offscreen { position: fixed !important; left: 0; top: 0; opacity: 0 }
+
+/* 1. wordmark */
+.g12i-wm {
+  margin: 0;
+  font-family: var(--g12-serif);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: -.01em;
+  color: var(--g12-bone);
+}
+.g12i-wm b { font-weight: inherit; color: var(--g12-lime) }
+
+/* 2. kicker */
+.g12i-kicker {
+  margin: 20px 0 0;
+  font-family: var(--g12-mono);
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--g12-mist-400);
+}
+
+/* 3. título */
+.g12i-title {
+  margin: 10px 0 0;
+  font-family: var(--g12-serif);
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-size: 40px;
+  line-height: 44px;
+  letter-spacing: -.02em;
+  color: var(--g12-bone);
+  text-wrap: balance;
+}
+.g12i-title em { font-style: italic; font-weight: 500; color: var(--g12-lime) }
+
+/* 4. celular com a captura real e o "12" fantasma atrás */
+.g12i-hero {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: 20px calc(-1 * var(--g)) 0;
+  padding: 0 var(--g);
+  overflow: hidden;
+  overflow: clip;
+}
+.g12i-ghost {
+  position: absolute;
+  top: 50%;
+  right: -0.22em;
+  transform: translateY(-50%);
+  font-family: var(--g12-serif);
+  font-weight: 700;
+  font-size: 320px;
+  line-height: 1;
+  letter-spacing: -.04em;
+  color: var(--g12-bone);
+  opacity: .04;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.g12i-phone {
+  position: relative;
+  width: 184px;
+  height: 376px;
+  flex: none;
+  border: 6px solid var(--g12-ink-700);
+  border-radius: 32px;
+  background: var(--g12-ink-900);
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .5);
+}
+.g12i-phone img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* 5. faixa */
+.g12i-band {
+  margin: 20px calc(-1 * var(--g)) 0;
+  padding: 10px var(--g);
+  background: var(--g12-ink-900);
+  border-top: 1px solid var(--g12-ink-700);
+  border-bottom: 1px solid var(--g12-ink-700);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--g12-bone);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 14px;
+  row-gap: 2px;
+  text-align: center;
+}
+.g12i-band > span { white-space: nowrap }
+
+/* 6. cartão de instruções */
+.g12i-card {
+  margin-top: 16px;
+  padding: 18px 20px;
+  background: var(--g12-ink-900);
+  border: 1px solid var(--g12-ink-700);
+  border-radius: 20px;
+}
+.g12i-lead, .g12i-note, .g12i-done { margin: 0; font-size: 16px; line-height: 23px }
+.g12i-lead b, .g12i-step b { font-weight: 600; color: var(--g12-bone) }
+.g12i-note { margin-bottom: 16px; color: var(--g12-mist-400); font-size: 15px; line-height: 21px }
+.g12i-done { font-weight: 500 }
+
+.g12i-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px }
+.g12i-steps li { display: flex; align-items: flex-start; gap: 14px }
+.g12i-n {
+  flex: none;
+  width: 18px;
+  font-family: var(--g12-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 23px;
+  color: var(--g12-lime);
+}
+.g12i-step { font-size: 16px; line-height: 23px }
+.g12i-ico { display: inline-block; vertical-align: -5px; margin-left: 4px; color: var(--g12-bone) }
+.g12i-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: -3px 2px;
+  vertical-align: middle;
+  border: 1px solid var(--g12-ink-600);
+  border-radius: 8px;
+  background: var(--g12-ink-800);
+}
+.g12i-key .g12i-ico { margin: 0; vertical-align: 0 }
+
+/* desenho do navegador embutido */
+.g12i-bar { display: block; width: 100%; max-width: 300px; height: auto; margin: 0 auto 16px }
+.g12i-bar-bg { fill: var(--g12-ink-800); stroke: var(--g12-ink-600); stroke-width: 1.5px }
+.g12i-bar-mute { fill: none; stroke: var(--g12-mist-400) }
+.g12i-bar-url { fill: var(--g12-ink-700) }
+.g12i-bar-ring { fill: none; stroke: var(--g12-lime) }
+.g12i-bar-dot { fill: var(--g12-lime) }
+.g12i-bar-arrow { fill: none; stroke: var(--g12-lime) }
+
+.g12i-copy { margin-top: 16px }
+.g12i-copy-msg { margin: 8px 0 0; min-height: 20px; font-size: 14px; line-height: 20px; color: var(--g12-mist-400); text-align: center }
+.g12i-link { font-family: var(--g12-mono); font-size: 13px; color: var(--g12-bone); word-break: break-all; -webkit-user-select: all; user-select: all }
+
+/* botões */
+.g12i-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-family: var(--g12-sans);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 20px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .15s ease, transform .15s ease;
+}
+.g12i-btn:focus-visible { outline: 2px solid var(--g12-lime); outline-offset: 3px }
+.g12i-btn:active { transform: scale(.98) }
+.g12i-btn-1 { min-height: 56px; background: var(--g12-lime); color: var(--g12-on-lime); font-size: 17px }
+.g12i-btn-1:hover { background: var(--g12-lime-400) }
+.g12i-btn-1:active { background: var(--g12-lime-600) }
+.g12i-btn-2 { background: var(--g12-ink-800); color: var(--g12-bone); border: 1px solid var(--g12-ink-600) }
+.g12i-btn-ghost { margin-top: 14px; background: transparent; color: var(--g12-bone); border: 1px solid var(--g12-ink-700) }
+.g12i-btn-2:hover, .g12i-btn-ghost:hover { background: var(--g12-ink-800) }
+
+/* Android com o botão: o cartão mais justo, para os dois botões caberem na primeira tela. */
+.g12i[data-env="android"] .g12i-card { padding: 14px }
+
+/* Android, antes do pedido de instalação chegar: o lugar do botão, sem pular quando ele aparecer. */
+.g12i-wait { min-height: 56px; border-radius: 999px; background: var(--g12-ink-800) }
+
+/* 8. rodapé */
+.g12i-foot { margin: 20px 0 0; font-size: 12px; line-height: 16px; color: var(--g12-mist-400); text-align: center }
+
+/* Entrada: fade + 16 px, 80 ms entre os blocos. Só enquanto o <main> tem .g12i-enter, que a página
+   põe ao montar e tira depois de ENTER_MS (InstallLanding.jsx), e nunca com "reduzir movimento".
+   `backwards` (não `both`): terminada a animação, nada dela continua valendo, então cada bloco volta
+   a ser pintado normalmente, sem camada própria presa na opacidade da animação. Sem a classe (sem
+   JS, aba escondida, relógio de animação parado) tudo aparece direto. */
+@keyframes g12i-in { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+.g12i-enter > * { animation: g12i-in .5s cubic-bezier(.2, .7, .2, 1) backwards }
+.g12i-enter > :nth-child(2) { animation-delay: 80ms }
+.g12i-enter > :nth-child(3) { animation-delay: 160ms }
+.g12i-enter > :nth-child(4) { animation-delay: 240ms }
+.g12i-enter > :nth-child(5) { animation-delay: 320ms }
+.g12i-enter > :nth-child(6) { animation-delay: 400ms }
+.g12i-enter > :nth-child(7) { animation-delay: 480ms }
+.g12i-enter > :nth-child(8) { animation-delay: 560ms }
+@media (prefers-reduced-motion: reduce) {
+  .g12i-enter > * { animation: none }
+  .g12i-btn { transition: none }
+  .g12i-btn:active { transform: none }
+}

@@ -33,7 +33,7 @@ import { effectiveLang } from '../lib/default-lang.js'
 import { DEMO, REPO } from '../lib/demo.js'
 import { STANDALONE, BRAND } from '../gym12/flags.js' // GYM 12 (src/gym12)
 import { markBackup } from '../gym12/backup.js'
-import { AccountLine, AccountSection, LicencasRow, SobreVersao } from '../gym12/SettingsBits.jsx'
+import { AccountLine, AccountSection, LicencasRow, SobreVersao, InstallRow } from '../gym12/SettingsBits.jsx'
 import Licencas from '../gym12/Licencas.jsx'
 import BackupReminder from '../gym12/BackupReminder.jsx'
 import { MOBILE, isAndroid, shareExport, shareExportBlob, syncReminder } from '../lib/mobile.js'
@@ -1175,7 +1175,8 @@ export default function Settings({ page = null, find = null, via = null, entryKe
       {/* "Add to Home screen": not inside the phone app, and not once it is installed. Safari's
           Share menu only on Apple (an iPad says Macintosh too); Windows and Linux get Chrome's
           install icon instead of an iPhone tip. */}
-      {!MOBILE && !standalone() && <Section title={t('Tip')}>
+      {STANDALONE && <InstallRow />}
+      {!STANDALONE && !MOBILE && !standalone() && <Section title={t('Tip')}>
         <Row icon="share" iconTint="var(--blue)"
           title={IS_ANDROID ? t('In Chrome: ⋮ menu → Add to Home screen') : APPLE_UA ? t('In Safari: Share → Add to Home Screen') : t('In Chrome or Edge: the install icon in the address bar')}
           subtitle={t('to install openGym as a full-screen app.') + ' ' + (user ? t('Your data syncs with your profile. Sign in anywhere and it’s there.') : t('Guest data stays on this device, so export a backup now and then!'))} />

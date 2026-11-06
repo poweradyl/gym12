@@ -2,6 +2,8 @@
 // sync, e nada de "demo": só a frase que diz onde os treinos ficam.
 import { Section, Row } from '../components/ui.jsx'
 import { BRAND } from './flags.js'
+import { runningInstalled } from './boot.js'
+import { INSTALL_HASH } from './Gate.jsx'
 
 export const ACCOUNT_LINE = 'Seus treinos ficam salvos neste celular.'
 
@@ -32,4 +34,13 @@ export function SobreVersao({ version, license, open }) {
     {MIDIA_CREDITO}{' '}
     <a href="#/settings/licencas" onClick={e => { e.preventDefault(); open() }}>Ver licenças</a>
   </div>
+}
+
+/**
+ * Ajustes → Sobre, no lugar da "Dica" do upstream (que falava em "dados de visitante"): a linha que
+ * abre a página de instalação (#/instalar, gym12/Gate.jsx). Some quando já roda como app instalado.
+ */
+export function InstallRow({ installed = runningInstalled() }) {
+  if (installed) return null
+  return <Section><Row icon="download" iconTint="var(--blue)" title="Instalar o GYM 12" accessory="chevron" onClick={() => { location.hash = INSTALL_HASH }} /></Section>
 }

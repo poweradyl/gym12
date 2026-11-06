@@ -5,9 +5,10 @@
 // 1. GYM12_MEDIA=1 (o padrão de scripts/gym12-build.sh): copia a mídia dos exercícios, byte a byte
 //    (scripts/catalogue/stage-media.mjs <dist>), com o aviso exercise-media/NOTICE.md.
 // 2. Service worker: põe na lista LAZY (já carimbada em dist/sw.js, nunca em public/sw.js) os
-//    pacotes pt-BR (interface, instruções, nomes, e o pt.js de que o pt-BR herda) e as fontes
-//    woff2 que ainda não estejam no precache. O build do upstream deixa os pacotes de idioma de
-//    fora (scripts/sw-stamp.mjs); como o GYM 12 abre em pt-BR, sem eles um app atualizado e aberto
+//    pacotes pt-BR (interface, instruções, nomes, e o pt.js de que o pt-BR herda), as fontes
+//    woff2 que ainda não estejam no precache e a captura da página de instalação
+//    (install-screen.webp). O build do upstream deixa os pacotes de idioma de fora
+//    (scripts/sw-stamp.mjs); como o GYM 12 abre em pt-BR, sem eles um app atualizado e aberto
 //    sem rede cairia em inglês (MAPA §9).
 // 3. Checagens que derrubam o build (código de saída 1):
 //    - endereço de provedor de IA em qualquer arquivo;
@@ -122,9 +123,9 @@ export function addToLazy(sw, extra) {
   return { sw: sw.replace(LAZY_RE, () => 'const LAZY = ' + JSON.stringify(JSON.stringify(next))), added }
 }
 
-/** O que o pós-build quer no precache: os chunks pt-BR, as fontes woff2 e os textos de licencas/, fora o que o index.html já cita. */
+/** O que o pós-build quer no precache: os chunks pt-BR, as fontes woff2, os textos de licencas/ e a captura da página de instalação, fora o que o index.html já cita. */
 export function lazyExtras(files, info, indexHtml = '') {
-  const want = [...(info?.ptBR || []), ...files.filter(f => /^assets\/[^/]+\.woff2$/.test(f.rel) || /^licencas\/[^/]+$/.test(f.rel)).map(f => f.rel)]
+  const want = [...(info?.ptBR || []), ...files.filter(f => /^assets\/[^/]+\.woff2$/.test(f.rel) || /^licencas\/[^/]+$/.test(f.rel) || f.rel === 'install-screen.webp').map(f => f.rel)]
   return want.map(f => './' + f).filter(u => !indexHtml.includes(u.slice(2)))
 }
 
