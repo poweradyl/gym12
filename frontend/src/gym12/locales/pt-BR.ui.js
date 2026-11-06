@@ -413,4 +413,12 @@ export default {
   "Superset {0}: {1} ({2})": "Bi-set {0}: {1} ({2})",
   "1Y": "1A",
   "Push / Pull / Legs": "Empurrar / Puxar / Pernas",
+
+  // 2026-11-06 (gravação do Reel): o título da lista do seletor depois de "Seus substitutos" (o
+  // pt-BR herdava "Todo o resto" do pt-PT) e o selo de recorde (gym12/rotulos.js: prBadge e
+  // prCount, "PR" e "{n} PR" fixos no sheets.jsx do upstream).
+  "Everything else": "Os demais exercícios",
+  "PR": "Recorde",
+  "{0} PR": "{0} recorde",
+  "{0} PRs": "{0} recordes",
 }

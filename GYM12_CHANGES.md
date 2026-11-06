@@ -57,6 +57,7 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/views/Stats.jsx` | Botões de período com `oneYear()` (`gym12/rotulos.js`) no lugar do "1Y" fixo: "1A" em pt-BR no GYM 12. |
 | 2026-11-06 | `frontend/src/views/Measurements.jsx` | O mesmo `oneYear()` nos botões de período das medidas. |
 | 2026-11-06 | `frontend/src/lib/starter.js` | Nomes das rotinas dos modelos de divisão por `starterName()` (`gym12/rotulos.js`): em pt-BR no GYM 12 ("Empurrar", "Puxar", "Pernas", "Superior A", "Corpo inteiro A"…); fora dele, os nomes em inglês do upstream. |
+| 2026-11-06 | `frontend/src/sheets.jsx` | Selo de recorde por `prBadge()`/`prCount()` (`gym12/rotulos.js`) no lugar do "PR" e do "{n} PR" fixos (histórico do exercício, treino salvo e lista de treinos): "Recorde", "1 recorde", "2 recordes" em pt-BR no GYM 12; sem tradução, exatamente o texto do upstream. |
 
 ## Arquivos novos
 
@@ -134,6 +135,10 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/gym12/backup-nome.test.js` | Testes: nomes `gym12-backup` e `opengym-backup`, limpeza com os dois prefixos misturados, zip novo e antigo na importação, README. |
 | 2026-11-06 | `frontend/src/gym12/termos-video.test.js` | Testes: nenhum "superset"/"supersérie" no pt-BR do GYM 12, Bi-set/bi-set, "1A", nomes dos modelos de divisão. |
 | 2026-11-06 | `docs/gym12/revisao-pt-BR-interface.md` | Glossário: Superset → bi-set (decisão do dono). |
+| 2026-11-06 | `frontend/src/gym12/locales/pt-BR.ui.js` | Gravação do Reel: "Everything else" → "Os demais exercícios" (título do seletor depois de "Seus substitutos"; antes herdava "Todo o resto" do pt-PT), "PR" → "Recorde", "{0} PR"/"{0} PRs" → "{0} recorde"/"{0} recordes". |
+| 2026-11-06 | `frontend/src/gym12/rotulos.js` | `prBadge()` e `prCount(n)`: o selo de recorde pela camada de tradução (chaves em variável, como o `oneYear()`). |
+| 2026-11-06 | `frontend/src/gym12/gym12.css` | Explorar músculos em pt-BR: chips dos músculos abaixo do mapa e de parte do corpo/equipamento depois da busca sem o `capitalize` do `.chip` ("Posteriores de coxa", não "Posteriores De Coxa"). |
+| 2026-11-06 | `frontend/src/gym12/termos-video.test.js` | Testes: "Everything else", selo de recorde em pt-BR e no upstream, `sheets.jsx` sem o "PR" fixo, CSS dos chips de músculo. |
 
 ## Deploy
 

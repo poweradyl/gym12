@@ -275,3 +275,9 @@
 :root:lang(pt-BR) .ss .capitalize,
 :root:lang(pt-BR) .lib-filters .chip,
 :root:lang(pt-BR) .lib-fsheet .chip { text-transform: none }
+/* Explorar músculos (components/MuscleExplorer.jsx: a página Músculos e o "Por músculo" do
+   seletor): os chips dos músculos logo abaixo do mapa ("Posteriores De Coxa" com o capitalize do
+   .chip) e os de parte do corpo e equipamento depois da busca. Os textos já vêm com a caixa
+   certa (pacote pt-BR e tagKeys). */
+:root:lang(pt-BR) .bodymap + .chips .chip,
+:root:lang(pt-BR) .search-row ~ .chips .chip { text-transform: none }

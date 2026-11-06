@@ -94,3 +94,42 @@ describe('modelos de divisão', () => {
     expect((await names()).slice(0, 3)).toEqual(['Push Day', 'Pull Day', 'Leg Day'])
   })
 })
+
+// 2026-11-06 (gravação do Reel): "Everything else" do seletor, o selo de recorde e os músculos.
+describe('títulos e selos da gravação', () => {
+  it('"Everything else" tem a frase do GYM 12 em pt-BR', async () => {
+    expect((await ptBRui())['Everything else']).toBe('Os demais exercícios')
+  })
+  it('selo de recorde: "Recorde" e "{n} recorde(s)" em pt-BR no GYM 12', async () => {
+    const pack = await ptBRui()
+    const core = await import('../lib/i18n-core.js')
+    const { prBadge, prCount } = await import('./rotulos.js')
+    core._setLangState('pt-BR', pack, null, null)
+    expect(prBadge()).toBe('Recorde')
+    expect(prCount(1)).toBe('1 recorde')
+    expect(prCount(3)).toBe('3 recordes')
+  })
+  it('sem tradução (inglês, upstream) o selo continua exatamente "PR" e "{n} PR"', async () => {
+    await standalone(false)
+    const core = await import('../lib/i18n-core.js')
+    const { prBadge, prCount } = await import('./rotulos.js')
+    core._setLangState('en', {}, null, null)
+    expect(prBadge()).toBe('PR')
+    expect(prCount(1)).toBe('1 PR')
+    expect(prCount(4)).toBe('4 PR')
+    core._setLangState('pt-BR', (await import('../locales/pt-BR.js')).default, null, null)
+    expect(prBadge()).toBe('PR')
+    expect(prCount(2)).toBe('2 PR')
+  })
+  it('sheets.jsx usa prBadge()/prCount() no lugar do "PR" fixo', () => {
+    const src = readFileSync(join(import.meta.dirname, '../sheets.jsx'), 'utf8')
+    expect(src).not.toMatch(/<Icon name="trophy" \/>PR<\/span>/)
+    expect(src).not.toMatch(/\{w\.prs\.length\} PR</)
+    expect(src.match(/\{prBadge\(\)\}/g)).toHaveLength(2)
+    expect(src).toMatch(/\{prCount\(w\.prs\.length\)\}/)
+  })
+  it('o CSS tira o capitalize dos chips de Explorar músculos em pt-BR', () => {
+    const css = readFileSync(join(import.meta.dirname, 'gym12.css'), 'utf8')
+    expect(css).toMatch(/:root:lang\(pt-BR\) \.bodymap \+ \.chips \.chip,\s*:root:lang\(pt-BR\) \.search-row ~ \.chips \.chip \{ text-transform: none \}/)
+  })
+})

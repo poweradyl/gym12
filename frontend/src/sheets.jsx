@@ -102,6 +102,7 @@ import { queueRemaining, pinState } from './lib/queue.js'
 import { DAY_NOTE_TAGS, DAY_NOTE_LABEL, DAY_NOTE_ICON, dayNoteOf, dayNoteLine, canNoteDay, withDayNote } from './lib/day-notes.js'
 import { isOn } from './lib/modules.js'
 import { STANDALONE } from './gym12/flags.js' // GYM 12 (src/gym12)
+import { prBadge, prCount } from './gym12/rotulos.js' // GYM 12 (src/gym12): selo "Recorde" em pt-BR
 
 const S = () => useStore.getState().S
 const update = (...a) => useStore.getState().update(...a)
@@ -1454,7 +1455,7 @@ function ExerciseHistory({ exId }) {
     <div className="list">
       {h.sessions.map(s => <div key={s.id} className="item" style={{ alignItems: 'flex-start' }}>
         <div className="grow">
-          <div className="tt">{fmtDate(s.d, true)} {s.pr && <span className="pr"><Icon name="trophy" />PR</span>}</div>
+          <div className="tt">{fmtDate(s.d, true)} {s.pr && <span className="pr"><Icon name="trophy" />{prBadge()}</span>}</div>
           <div className="ss">{s.sets.map(x => setLabel(exId, x, s.target, speedUnitOf(st))).join('  ·  ')}</div>
           {tail(s) && <div className="small dim" style={{ marginTop: 3 }}>{tail(s)}</div>}
         </div>
@@ -3149,7 +3150,7 @@ function WorkoutDetail({ w, close }) {
     // (.tap-main), and the picture is its own button above it for the exercise's details.
     return <div key={i} className="row wd-ex tap-host" style={{ alignItems: 'flex-start' }}>
       {ex && <button type="button" className="wd-thumb" aria-label={t('Details')} aria-haspopup="dialog" onClick={() => exerciseDetailSheet(ex)}><Thumb ex={ex} /></button>}
-      <button type="button" className="grow item-open tap-main" aria-haspopup="dialog" onClick={() => exerciseHistorySheet(e.id)}><span className={`tt ${exerciseNameClass(ex)}`} style={{ fontWeight: 600 }}>{nameOf(e)} {w.prs && w.prs.includes(e.id) && <span className="pr"><Icon name="trophy" />PR</span>}</span>
+      <button type="button" className="grow item-open tap-main" aria-haspopup="dialog" onClick={() => exerciseHistorySheet(e.id)}><span className={`tt ${exerciseNameClass(ex)}`} style={{ fontWeight: 600 }}>{nameOf(e)} {w.prs && w.prs.includes(e.id) && <span className="pr"><Icon name="trophy" />{prBadge()}</span>}</span>
         {/* An exercise in a unit of its own (#657) reads in it, and says which. */}
         <span className="ss">{detailSets(e)}{exUnitTag(st, e.id)}</span>
         {times[i] > 0 && <span className="small dim" style={{ marginTop: 3 }}>
@@ -3428,7 +3429,7 @@ export function WorkoutRow({ w, onClick, tour }) {
     <div className="grow"><div className="tt">{w.name}</div>
       <div className="ss">{[fmtDate(w.d, true), ...durPart(w.end - w.start), tn('{0} set', '{0} sets', setsDone(w)), fmtVol(sessionVolume(w, st), st.unit)].join(' · ')}</div></div>
     {mediaN > 0 && <span className="wrow-media" title={tn('{0} photo or video', '{0} photos or videos', mediaN)} aria-label={tn('{0} photo or video', '{0} photos or videos', mediaN)}><Icon name="image" />{mediaN}</span>}
-    {w.prs && w.prs.length > 0 && <span className="pr"><Icon name="trophy" />{w.prs.length} PR</span>}
+    {w.prs && w.prs.length > 0 && <span className="pr"><Icon name="trophy" />{prCount(w.prs.length)}</span>}
     <Icon name="chevronRight" className="chev" />
   </div>
 }
