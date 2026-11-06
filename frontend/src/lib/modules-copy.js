@@ -3,6 +3,7 @@
 // and would quietly stay English. modules.js keeps the same English, which the settings search
 // matches on; modules-copy.test.js holds the two together.
 import { t } from './i18n.js'
+import { STANDALONE } from '../gym12/flags.js' // GYM 12 (src/gym12)
 
 export const moduleCopy = () => ({
   effort: [t('Effort'), t('Rate each set in RIR or RPE, and see in Stats how hard you really push.')],
@@ -28,5 +29,5 @@ export const groupCopy = () => ({
 export const presetCopy = () => ({
   training: [t('Just training'), t('Log, plan, progress. Nothing else on the screen.')],
   body: [t('Training and body'), t('Plus weigh-ins, measurements, photos and your health apps.')],
-  all: [t('Everything'), t('Streaks, the Coach, themes, the lot.')],
+  all: [t('Everything'), STANDALONE ? t('Streaks, challenges, badges, recaps and your year in openGym.') : t('Streaks, the Coach, themes, the lot.')], // GYM 12: no Coach to name
 })

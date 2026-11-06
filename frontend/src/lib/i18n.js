@@ -9,6 +9,7 @@ import {
   getLang, dateLocale, t, tn, instrFor, exerciseNameFor, exerciseNameSearchText, getVersion,
   baseLang, derivePack, _setLangState, exerciseNameClass, descFor, instrTranslated, _setDetailsLoader, _setDetails, _detailsFailed
 } from './i18n-core.js'
+import { overlayFor, merged } from '../gym12/i18n-overlay.js'
 
 export {
   LANGS, INSTR_LANGS, EXERCISE_NAME_LANGS, DATE_LOCALES, DERIVED_LOCALES, RTL_LANGS,
@@ -73,7 +74,8 @@ export async function setLang(l, showEn, enOnly) {
     base === 'en' || !INSTR_LANGS.includes(base) ? null : pack(instrPacks, '../instr/' + base + '.js', null),
     base === 'en' || !EXERCISE_NAME_LANGS.includes(base) ? null : pack(exerciseNamePacks, '../exercise-names/' + base + '.js', null),
   ])
-  _setLangState(l, derivePack(l, dict), derivePack(l, instr), derivePack(l, exerciseNames), show, only)
+  const ov = await overlayFor(l, dict) // GYM 12 (src/gym12): { ui: {}, names: {} } outside the GYM 12 build
+  _setLangState(l, derivePack(l, merged(dict, ov.ui)), derivePack(l, instr), derivePack(l, merged(exerciseNames, ov.names)), show, only)
   if (detailsLoaded) loadDetails()
   document.documentElement.lang = l
   document.documentElement.dir = RTL_LANGS.has(l) ? 'rtl' : 'ltr'

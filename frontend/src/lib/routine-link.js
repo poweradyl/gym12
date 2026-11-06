@@ -19,6 +19,7 @@
 import { EXIDX, isCustomEx } from './exercises.js'
 import { buildPlanBundle, parsePlan, mergePlan } from './plan-share.js'
 import { t } from './i18n-core.js'
+import { STANDALONE } from '../gym12/flags.js' // GYM 12 (src/gym12)
 
 export const LINK_FMT = 1
 export const LINK_BASE = 'https://opengym.ch/r'
@@ -155,7 +156,8 @@ export async function decodePayload(payload) {
   return data
 }
 
-export const linkFor = payload => `${LINK_BASE}#${payload}`
+// GYM 12: the app's own address, which opens the routine through the #/r/<payload> route below.
+export const linkFor = payload => (STANDALONE ? `${location.origin}${location.pathname.replace(/index\.html$/, '')}#/r/${payload}` : `${LINK_BASE}#${payload}`)
 
 /**
  * The link for a routine, or `{ tooLong: true }` when it would pass MAX_LINK (the caller shares a

@@ -272,7 +272,7 @@ export function _setLangState(newLang, newDict, newInstr, newExerciseNames, show
   lang = LANGS[newLang] ? newLang : 'en'
   // The old language's descriptions are not this one's: English until its own have loaded.
   if (lang !== was) descs = null
-  dict = lang === 'en' ? {} : (newDict || {})
+  dict = lang === 'en' && (import.meta.env || {}).VITE_STANDALONE !== '1' ? {} : (newDict || {}) // GYM 12: English renamed too
   instr = lang === 'en' || !INSTR_LANGS.includes(baseLang(lang)) ? null : (newInstr || null)
   exerciseNames = lang === 'en' || !EXERCISE_NAME_LANGS.includes(baseLang(lang))
     ? null

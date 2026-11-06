@@ -4,11 +4,14 @@
 // lib/share-image.js gets the picture out of the app. No exercise picture or clip is ever drawn
 // on a card (the licence keeps those inside the app, NOTICE.md).
 
+import { STANDALONE, BRAND } from '../gym12/flags.js' // GYM 12 (src/gym12)
+
 // 9:16 for Stories and Reels, 1:1 for a feed or a chat.
 export const FORMATS = { story: { width: 1080, height: 1920 }, square: { width: 1080, height: 1080 } }
 export const FORMAT_IDS = Object.keys(FORMATS)
 export const STYLE_IDS = ['dark', 'light']
-export const SITE = 'opengym.ch'
+export const SITE = STANDALONE ? BRAND.host : 'opengym.ch'
+const [NAME_A, NAME_B] = STANDALONE ? ['GYM ', '12'] : ['open', 'Gym']
 
 /**
  * The colours of a card, the app's own (index.css) in a fixed light or dark look, whatever the
@@ -78,10 +81,10 @@ export function drawBrand(ctx, { x, y, width, colors, family, size = 40 }) {
   ctx.textAlign = 'left'
   ctx.font = `800 ${size}px ${family}`
   ctx.fillStyle = colors.label
-  ctx.fillText('open', tx, y)
-  tx += ctx.measureText('open').width
+  ctx.fillText(NAME_A, tx, y)
+  tx += ctx.measureText(NAME_A).width
   ctx.fillStyle = colors.accText || colors.acc
-  ctx.fillText('Gym', tx, y)
+  ctx.fillText(NAME_B, tx, y)
   ctx.font = `600 ${Math.round(size * 0.72)}px ${family}`
   ctx.fillStyle = colors.label2
   ctx.textAlign = 'right'

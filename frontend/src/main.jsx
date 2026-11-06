@@ -1,3 +1,4 @@
+import './gym12/boot.js' // GYM 12 (src/gym12): no-op outside the GYM 12 build
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'

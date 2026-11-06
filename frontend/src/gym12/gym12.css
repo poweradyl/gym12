@@ -1,0 +1,3 @@
+/* GYM 12: estilos da marca. Quase vazio de propósito: a tarefa de marca preenche os tokens
+   (cores, acento, fonte dos números) com seletores :root:root, para ganhar do index.css
+   independentemente da ordem de carga (MAPA §5). Importado por src/gym12/boot.js. */

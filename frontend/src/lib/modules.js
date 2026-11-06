@@ -21,6 +21,8 @@
 // Pure: no imports, so lib/ helpers such as history.js effortOf can use it without a cycle.
 
 /* `title` and `desc` are English keys, translated where they are shown. Order is the page's. */
+// GYM 12 (src/gym12): modules the standalone build has no use for, off and gone from the page.
+const OFF = new Set((import.meta.env || {}).VITE_STANDALONE === '1' ? ['coach', 'integrations', 'watch', 'health', 'seasonal'] : [])
 export const MODULES = [
   { id: 'effort', group: 'training', icon: 'gauge', tint: 'var(--purple)', title: 'Effort',
     desc: 'Rate each set in RIR or RPE, and see in Stats how hard you really push.' },
@@ -46,7 +48,7 @@ export const MODULES = [
     desc: 'Webhooks for Home Assistant and friends, and the MCP server.' },
   { id: 'seasonal', group: 'extras', icon: 'pumpkin', tint: 'var(--orange)', title: 'Seasonal themes',
     desc: 'Halloween, Christmas and the advent calendar. Spooky, festive, optional.' },
-]
+].filter(m => !OFF.has(m.id))
 export const MODULE_IDS = MODULES.map(m => m.id)
 export const MODULE = Object.fromEntries(MODULES.map(m => [m.id, m]))
 
@@ -61,7 +63,7 @@ const TRAINING = ['effort', 'plates', 'watch']
 export const PRESETS = [
   { id: 'training', title: 'Just training', desc: 'Log, plan, progress. Nothing else on the screen.', on: TRAINING },
   { id: 'body', title: 'Training and body', desc: 'Plus weigh-ins, measurements, photos and your health apps.', on: [...TRAINING, 'strength', 'body', 'health'] },
-  { id: 'all', title: 'Everything', desc: 'Streaks, the Coach, themes, the lot.', on: MODULE_IDS },
+  { id: 'all', title: 'Everything', desc: OFF.size ? MODULE.motivation.desc : 'Streaks, the Coach, themes, the lot.', on: MODULE_IDS }, // GYM 12: no Coach to name
 ]
 export const PRESET = Object.fromEntries(PRESETS.map(p => [p.id, p]))
 
@@ -69,6 +71,7 @@ const isMap = v => !!v && typeof v === 'object' && !Array.isArray(v)
 
 /** Whether module `id` is on for this profile. Unknown ids are on (a newer client's module). */
 export function isOn(S, id) {
+  if (OFF.has(id)) return false
   const v = isMap(S?.modules) ? S.modules[id] : undefined
   if (typeof v === 'boolean') return v
   // Before 1.4.4 the check-in had its own switch in Look & Home; it decides until Modules does.

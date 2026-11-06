@@ -20,6 +20,7 @@ import { sessionHistory } from '../lib/backfill.js'
 import { startFlow, confirmSheet, exerciseDetailSheet } from '../sheets.jsx'
 import { Button, Section, Row } from './ui.jsx'
 import Icon from './Icon.jsx'
+import { STANDALONE } from '../gym12/flags.js' // GYM 12 (src/gym12)
 
 const ui = () => useUI.getState()
 
@@ -28,6 +29,7 @@ export function useNfcSupported() {
   const [ok, setOk] = useState(false)
   useEffect(() => {
     let gone = false
+    if (STANDALONE) return // GYM 12: no sticker writing; the opengym.ch links they carry are not ours
     nfcSupport().then(r => { if (!gone) setOk(!!r?.supported) }).catch(() => {})
     return () => { gone = true }
   }, [])
