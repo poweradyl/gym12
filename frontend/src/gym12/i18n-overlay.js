@@ -52,11 +52,25 @@ async function englishRenames() {
   return enKeys
 }
 
+// Nomes de exercícios em pt-BR com a primeira letra maiúscula ("Supino reto com barra"): o pacote
+// do catálogo vem todo em minúsculas, e no GYM 12 o pt-BR é um idioma "com caixa própria"
+// (CASED_NAME_LANGS em lib/i18n-core.js), sem o `text-transform: capitalize` que poria maiúscula
+// em cada palavra. Só a primeira letra muda; o resto (nomes próprios, siglas) fica como está.
+const FIRST_LOWER = /^\p{Ll}/u
+/** O nome com a primeira letra maiúscula, se ela for uma minúscula. */
+export const sentenceCase = s => (typeof s === 'string' ? s.replace(FIRST_LOWER, c => c.toLocaleUpperCase('pt-BR')) : s)
+/** { id: nome } do pacote com sentenceCase em cada nome. */
+export const sentenceCased = names => {
+  const out = {}
+  for (const [id, n] of Object.entries(names || {})) out[id] = sentenceCase(n)
+  return out
+}
+
 /**
- * { ui, names } do GYM 12 para o idioma `lang`, dado o pacote `dict` já carregado (vazio no inglês).
- * Fora do build do GYM 12: { ui: {}, names: {} }.
+ * { ui, names } do GYM 12 para o idioma `lang`, dados os pacotes já carregados: `dict` (frases,
+ * vazio no inglês) e `names` (nomes de exercícios, ou null). Fora do build do GYM 12: { ui: {}, names: {} }.
  */
-export async function overlayFor(lang, dict = {}) {
+export async function overlayFor(lang, dict = {}, names = null) {
   if (!STANDALONE) return EMPTY
   if (lang === 'en') return { ui: await englishRenames(), names: {} }
   const ui = renamedEntries(dict)
@@ -64,7 +78,7 @@ export async function overlayFor(lang, dict = {}) {
     const load = async p => { try { return (await p).default || {} } catch { return {} } }
     const [ptBRui, ptBRnames] = await Promise.all([load(import('./locales/pt-BR.ui.js')), load(import('./locales/pt-BR.names.js'))])
     for (const [k, v] of Object.entries(ptBRui)) ui[k] = renameValue(v)
-    return { ui, names: { ...ptBRnames } }
+    return { ui, names: sentenceCased({ ...(names || {}), ...ptBRnames }) }
   }
   return { ui, names: {} }
 }

@@ -57,7 +57,30 @@ describe('overlayFor', () => {
     const { overlayFor } = await import('./i18n-overlay.js')
     const ov = await overlayFor('pt-BR', { Save: 'Salvar', 'About openGym': 'Sobre o openGym' })
     expect(ov.ui).toEqual({ Save: 'Salvar já', 'Rate openGym': 'Avalie o GYM 12', 'About openGym': 'Sobre o GYM 12' })
-    expect(ov.names).toEqual({ 1000: 'panturrilha teste' })
+    expect(ov.names).toEqual({ 1000: 'Panturrilha teste' })
+  })
+  it('pt-BR: todo nome do pacote ganha a primeira letra maiúscula, e a revisão ganha do pacote', async () => {
+    vi.resetModules()
+    vi.stubEnv('VITE_STANDALONE', '1')
+    vi.doMock('./locales/pt-BR.names.js', () => ({ default: { 2: 'remada curvada com barra' } }))
+    const { overlayFor } = await import('./i18n-overlay.js')
+    const ov = await overlayFor('pt-BR', {}, { 1: 'supino com barra', 2: 'remada errada', 3: 'élévation teste', 4: '3/4 abdominal', 5: 'Agachamento no Smith' })
+    expect(ov.names).toEqual({ 1: 'Supino com barra', 2: 'Remada curvada com barra', 3: 'Élévation teste', 4: '3/4 abdominal', 5: 'Agachamento no Smith' })
+    // os outros idiomas não mudam a caixa
+    expect((await overlayFor('es', {}, { 1: 'press de banca' })).names).toEqual({})
+  })
+})
+
+describe('sentenceCase', () => {
+  it('só a primeira letra, e só se for minúscula', async () => {
+    const { sentenceCase } = await overlay(true)
+    expect(sentenceCase('supino inclinado com halteres')).toBe('Supino inclinado com halteres')
+    expect(sentenceCase('ágil')).toBe('Ágil')
+    expect(sentenceCase('crucifixo na máquina (peck deck)')).toBe('Crucifixo na máquina (peck deck)')
+    expect(sentenceCase('agachamento no smith com Kettlebell')).toBe('Agachamento no smith com Kettlebell')
+    expect(sentenceCase('45° flexão')).toBe('45° flexão')
+    expect(sentenceCase('')).toBe('')
+    expect(sentenceCase(null)).toBe(null)
   })
   it('merged não copia à toa', async () => {
     const { merged } = await overlay(true)
@@ -83,10 +106,39 @@ describe('setLang com a camada', () => {
     expect(i18n.t(KEY)).toMatch(/GYM 12/)
     expect(i18n.t(KEY)).not.toMatch(/openGym/)
     const ex = { id: '1000', n: 'band calf raise' }
-    expect(i18n.exerciseNameFor(ex)).toMatch(/^nome revisado gym12/)
-    expect(i18n.exerciseNameSearchText(ex)).toContain('nome revisado gym12')
+    expect(i18n.exerciseNameFor(ex)).toMatch(/^Nome revisado gym12/)
+    expect(i18n.exerciseNameSearchText(ex)).toContain('Nome revisado gym12')
     await i18n.setLang('de')
     expect(i18n.t(KEY)).not.toMatch(/openGym/)
+  })
+  it('GYM 12: nomes pt-BR em sentence case, sem capitalize, e a busca acha sem acento nem caixa', async () => {
+    vi.resetModules()
+    vi.stubEnv('VITE_STANDALONE', '1')
+    const i18n = await import('../lib/i18n.js')
+    const { searchExercises } = await import('../lib/exercises.js')
+    await i18n.setLang('pt-BR', false)
+    const pack = (await import('../exercise-names/pt-BR.js')).default
+    const revised = (await import('./locales/pt-BR.names.js')).default
+    const id = Object.keys(pack).find(k => !(k in revised) && /^\p{Ll}/u.test(pack[k]) && /[à-ú]/.test(pack[k]))
+    const ex = { id, n: 'english title' }
+    const shown = i18n.exerciseNameFor(ex)
+    expect(shown[0]).toBe(pack[id][0].toLocaleUpperCase('pt-BR'))
+    expect(shown.slice(1)).toBe(pack[id].slice(1))
+    expect(i18n.exerciseNameClass(ex)).toBe('')
+    // a busca normaliza caixa e acento: o nome em minúsculas e sem acento acha o exercício
+    const query = pack[id].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    expect(searchExercises([ex], query).map(e => e.id)).toEqual([id])
+    // um exercício sem nome no pacote continua com o título em inglês e o capitalize
+    expect(i18n.exerciseNameClass({ id: 'zz-sem-nome', n: 'push-up' })).toBe('capitalize')
+  })
+  it('fora do GYM 12 o pt-BR segue em minúsculas com o capitalize do CSS', async () => {
+    vi.resetModules()
+    const i18n = await import('../lib/i18n.js')
+    await i18n.setLang('pt-BR', false)
+    const pack = (await import('../exercise-names/pt-BR.js')).default
+    const id = Object.keys(pack).find(k => /^\p{Ll}/u.test(pack[k]))
+    expect(i18n.exerciseNameFor({ id, n: 'english title' })).toBe(pack[id])
+    expect(i18n.exerciseNameClass({ id, n: 'english title' })).toBe('capitalize')
   })
   it('fora do GYM 12 o inglês segue sem pacote e com o nome original', async () => {
     vi.resetModules()

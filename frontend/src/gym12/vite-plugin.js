@@ -5,9 +5,13 @@
 //    mesmos nomes (src/gym12/stubs). A comparação é pelo caminho absoluto resolvido: os imports
 //    vêm de pastas diferentes ('./coach-local.js', '../lib/coach-local.js'), então um alias por
 //    caminho relativo não funcionaria.
-//  - transformIndexHtml: título, metas, cor do tema, idioma e os textos do vigia de boot em pt-BR.
-//  - closeBundle: dist/manifest.json a partir de brand/manifest.json e dist/_headers (Cloudflare Pages).
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+//  - transform: acrescenta `import './gym12.css'` ao gym12/boot.js (cores, fontes e números da marca
+//    só neste build; o upstream e o vitest nunca carregam o CSS nem as fontes).
+//  - transformIndexHtml: título, metas, cor do tema, idioma, os textos do vigia de boot em pt-BR,
+//    os ícones (favicon SVG + PNG 32) e a tela de abertura com o wordmark (brand/wordmark.svg).
+//  - closeBundle: dist/manifest.json a partir de brand/manifest.json, os ícones de brand/ na raiz do
+//    dist e dist/_headers (Cloudflare Pages).
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -27,6 +31,8 @@ export const STUBS = {
   [join(SRC, 'components/GymMap.jsx')]: join(HERE, 'stubs/GymMap.jsx'),
 }
 // Filtro barato antes de pedir ao Vite para resolver o caminho.
+// O boot.js do GYM 12, que recebe o import do CSS da marca (transform).
+const BOOT = join(HERE, 'boot.js')
 const NAMES = /(?:^|[\\/])(?:CoachChat|CoachIntake|CoachSetup|Admin|coach-local|coach-demo|demoSeed|GymMap)(?:\.jsx?)?$/
 
 export const DESCRIPTION = 'GYM 12 — sua ficha de treino no celular. Grátis, sem anúncio, seus treinos ficam no seu celular.'
@@ -47,7 +53,46 @@ const HTML_SWAPS = [
   ["'Could not load ' + (t.src || 'a script')", "'Não foi possível carregar ' + (t.src || 'um script')"],
   ["'openGym could not start on this browser.'", "'O GYM 12 não conseguiu abrir neste navegador.'", null, true],
   ["'openGym is taking too long to start.'", "'O GYM 12 está demorando demais para abrir.'"],
+  ['<link rel="icon" type="image/png" href="icon-180.png">', '<link rel="icon" type="image/svg+xml" href="favicon.svg">\n<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">'],
 ]
+
+// Os arquivos de brand/ (gerados por scripts/brand-assets.mjs) que vão para a raiz do dist. Os
+// icon-180/icon-512 do upstream (public/) são sobrescritos.
+export const BRAND_FILES = ['icon-180.png', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'favicon.svg', 'favicon-32.png']
+
+// A tela de abertura do GYM 12 no lugar dos halteres do upstream: ink-950, o wordmark ("GYM" bone +
+// "12" lime, Fraunces em contorno, sem depender de fonte carregada) e um traço lime fino embaixo.
+// Os estilos do vigia (#boot.fail) continuam, com as cores da marca. lib/boot.js tira #boot quando
+// o app desenha; sem a animação dos halteres (.db) ele sai na hora, sem esperar a repetição.
+const BOOT_START = '<style>\n  #boot{'
+const BOOT_END = '<div id="root"></div>'
+export function bootScreen(wordmark) {
+  const svg = wordmark.trim().replace(/ width="[\d.]+" height="[\d.]+"/, '').replace('<svg ', '<svg role="presentation" focusable="false" ')
+  return `<style>
+  #boot{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:#050604;transition:opacity .22s ease-out}
+  #boot.out{opacity:0;pointer-events:none}
+  #boot .wm{display:flex;flex-direction:column;align-items:center;gap:18px}
+  #boot .wm svg{display:block;width:176px;height:auto}
+  #boot .wm i{display:block;width:64px;height:2px;border-radius:1px;background:#c4f439}
+  #boot.fail{place-items:center;padding:24px}
+  #boot.fail div{max-width:340px;font:15px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:#f4f1ea;text-align:center}
+  #boot.fail .h{font-size:19px;font-weight:600;margin:0 0 8px}
+  #boot.fail code{display:block;margin:14px 0 18px;padding:10px;border-radius:10px;background:#121510;color:#8b8a7e;font-size:12px;text-align:left;word-break:break-word;-webkit-user-select:text;user-select:text}
+  #boot.fail button{font:inherit;font-weight:600;color:#050604;background:#c4f439;border:0;border-radius:12px;min-height:44px;padding:0 28px}
+</style>
+<div id="boot" aria-hidden="true">
+  <div class="wm">${svg}<i></i></div>
+</div>
+`
+}
+
+/** O index.html com a tela de abertura do GYM 12. Lança erro se o bloco do upstream mudou. */
+export function brandBoot(html, wordmark = readFileSync(join(REPO, 'brand/wordmark.svg'), 'utf8')) {
+  const a = html.indexOf(BOOT_START)
+  const b = html.indexOf(BOOT_END)
+  if (a < 0 || b < a || !html.slice(a, b).includes('<div id="boot" aria-hidden="true">')) throw new Error('[gym12] index.html mudou: não achei a tela de boot (#boot)')
+  return html.slice(0, a) + bootScreen(wordmark) + html.slice(b)
+}
 
 /** O index.html do GYM 12. Lança erro se algum trecho esperado não existir mais. */
 export function brandHtml(html) {
@@ -57,7 +102,7 @@ export function brandHtml(html) {
     if (!key) throw new Error('[gym12] index.html mudou: não achei ' + from)
     out = all ? out.split(key).join(to) : out.replace(key, () => to)
   }
-  return out
+  return brandBoot(out)
 }
 
 // Cloudflare Pages: o service worker e o HTML sempre revalidados; os arquivos com hash, para sempre.
@@ -101,12 +146,17 @@ export default function gym12() {
       const id = r?.id?.split('?')[0]
       return id && STUBS[id] ? STUBS[id] : null
     },
+    transform(code, id) {
+      if (id.split('?')[0] !== BOOT) return null
+      return { code: "import './gym12.css'\n" + code, map: null }
+    },
     transformIndexHtml: { order: 'pre', handler: html => brandHtml(html) },
     generateBundle(_, bundle) { info = buildInfo(bundle) },
     closeBundle() {
       if (!existsSync(outDir)) return
       const manifest = JSON.parse(readFileSync(join(REPO, 'brand/manifest.json'), 'utf8'))
       writeFileSync(join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n')
+      for (const f of BRAND_FILES) copyFileSync(join(REPO, 'brand', f), join(outDir, f))
       writeFileSync(join(outDir, '_headers'), HEADERS)
       if (info) writeFileSync(join(outDir, '.gym12-build.json'), JSON.stringify(info, null, 2) + '\n')
     },

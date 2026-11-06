@@ -17,7 +17,7 @@ import { useRef, useState, useEffect, useCallback, forwardRef } from 'react'
 import Icon from './Icon.jsx'
 import { sheetKeyboardInsets } from '../lib/use-sheet-keyboard.js'
 import { NATIVE_KEYBOARD_EVENT } from '../lib/native-keyboard.js'
-import { t } from '../lib/i18n.js'
+import { t, getLang } from '../lib/i18n.js'
 import { cleanNum } from '../lib/format.js'
 
 /* ============================ text ============================ */
@@ -57,12 +57,13 @@ export function NumberField({ value, onChange, decimal = true, nullable = false,
   }
   // Shown clean (lib/format.js cleanNum), so a stored 20.4117 never fills the field; typing replaces it.
   const shown = draft ?? (typeof value === 'number' ? cleanNum(value, step) : (value ?? ''))
+  const text = (import.meta.env || {}).VITE_STANDALONE === '1' && getLang() === 'pt-BR' ? String(shown).replace('.', ',') : shown // GYM 12: vírgula decimal em pt-BR
   return (
     <input
       type="text"
       inputMode={decimal ? 'decimal' : 'numeric'}
       className={'num ' + className}
-      value={shown}
+      value={text}
       // `fit` hugs the digits on screen — a big read-out with its unit sitting right beside
       // it — where the default fills whatever cell the field is in.
       style={fit ? { width: numWidthCh(String(shown)) + 'ch' } : undefined}

@@ -12,6 +12,8 @@ export const FORMAT_IDS = Object.keys(FORMATS)
 export const STYLE_IDS = ['dark', 'light']
 export const SITE = STANDALONE ? BRAND.host : 'opengym.ch'
 const [NAME_A, NAME_B] = STANDALONE ? ['GYM ', '12'] : ['open', 'Gym']
+// GYM 12: o wordmark em Fraunces quando a fonte já carregou (gym12/boot.js a pede na abertura), "GYM" em bone no escuro, sem os halteres.
+const brandFace = (family, size) => { try { return STANDALONE && document.fonts.check(`700 ${size}px Fraunces`) ? `700 ${size}px Fraunces, ${family}` : null } catch { return null } }
 
 /**
  * The colours of a card, the app's own (index.css) in a fixed light or dark look, whatever the
@@ -75,12 +77,12 @@ export function drawMark(ctx, x, y, h, color) {
  */
 export function drawBrand(ctx, { x, y, width, colors, family, size = 40 }) {
   const markH = size * 0.78
-  drawMark(ctx, x, y - size * 0.36, markH, colors.acc)
-  let tx = x + markH * MARK_ASPECT + size * 0.4
+  if (!STANDALONE) drawMark(ctx, x, y - size * 0.36, markH, colors.acc)
+  let tx = STANDALONE ? x : x + markH * MARK_ASPECT + size * 0.4
   ctx.direction = 'ltr'
   ctx.textAlign = 'left'
-  ctx.font = `800 ${size}px ${family}`
-  ctx.fillStyle = colors.label
+  ctx.font = (STANDALONE && brandFace(family, size)) || `800 ${size}px ${family}`
+  ctx.fillStyle = STANDALONE && !colors.light ? '#f4f1ea' : colors.label
   ctx.fillText(NAME_A, tx, y)
   tx += ctx.measureText(NAME_A).width
   ctx.fillStyle = colors.accText || colors.acc

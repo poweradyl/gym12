@@ -1,3 +1,233 @@
-/* GYM 12: estilos da marca. Quase vazio de propósito: a tarefa de marca preenche os tokens
-   (cores, acento, fonte dos números) com seletores :root:root, para ganhar do index.css
-   independentemente da ordem de carga (MAPA §5). Importado por src/gym12/boot.js. */
+/* GYM 12: a identidade visual (docs/gym12/BRAND.md), estilo Protocolo 12.
+
+   Só entra no build do GYM 12: o plugin (vite-plugin.js) acrescenta `import './gym12.css'` ao
+   boot.js durante o vite build do GYM 12. O build do upstream e o vitest nunca carregam este
+   arquivo (nem as fontes que ele cita).
+
+   O CSS do app (index.css) vem depois deste no bundle. Por isso cada regra daqui leva um `:root`
+   a mais na frente (MAPA §5): ganha pela especificidade, qualquer que seja a ordem de carga.
+
+   Fontes (woff2 em ./fonts, licença OFL nos OFL-*.txt ao lado; o Vite as emite com hash em
+   assets/ e o pós-build as põe na LAZY do service worker, para funcionar sem rede):
+   - Geist: a interface toda;
+   - Fraunces: só os títulos grandes (título da página, splash);
+   - JetBrains Mono, com algarismos tabulares: os números do treino. */
+
+/* ---------------------------------------------------------------- fontes -- */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/geist-latin-wght-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/geist-latin-ext-wght-normal.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* Fraunces romana com os eixos de peso e de tamanho óptico (opsz 9–144: font-optical-sizing
+   auto escolhe pelo tamanho do texto). A itálica só tem o eixo de peso, para caber no orçamento
+   de 350 KB das fontes. */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/fraunces-latin-opsz-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/fraunces-latin-ext-opsz-normal.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/fraunces-latin-wght-italic.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Fraunces';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url(./fonts/fraunces-latin-ext-wght-italic.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(./fonts/jetbrains-mono-latin-wght-normal.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url(./fonts/jetbrains-mono-latin-ext-wght-normal.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* ---------------------------------------------------------------- tokens -- */
+:root:root {
+  /* a paleta da marca (BRAND.md) */
+  --g12-ink-950: #050604;
+  --g12-ink-900: #0a0c08;
+  --g12-ink-800: #121510;
+  --g12-ink-700: #1a1e17;
+  --g12-ink-600: #252a20;
+  --g12-lime: #c4f439;
+  --g12-lime-400: #d4fa5e;
+  --g12-lime-600: #a8d82e;
+  --g12-bone: #f4f1ea;
+  --g12-mist-400: #8b8a7e;
+  --g12-mist-500: #6b6a5e;
+  --g12-amber: #e8b83c;
+  --g12-red: #e5484d;
+  --g12-on-lime: #050604;
+
+  --g12-sans: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, system-ui, sans-serif;
+  --g12-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --g12-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* Tema escuro (o padrão): o ink no lugar dos cinzas do iPhone. */
+:root:root:not([data-theme="light"]) {
+  --bg: var(--g12-ink-950);
+  --bg-el: var(--g12-ink-900);
+  --surface: var(--g12-ink-900);
+  --surface-2: var(--g12-ink-800);
+  --surface-3: var(--g12-ink-700);
+  --surface-raised: var(--g12-ink-800);
+  --raised-line: rgba(244,241,234,.09);
+
+  --label: var(--g12-bone);
+  --label-2: var(--g12-mist-400);
+  --label-3: var(--g12-mist-500);
+  --label-4: rgba(244,241,234,.18);
+  --label-dim: var(--g12-mist-400);
+
+  --sep: var(--g12-ink-600);
+  --sep-op: var(--g12-ink-700);
+
+  --red: var(--g12-red);
+}
+
+/* Os cartões em ink-900 quase somem sobre o ink-950: no escuro levam o contorno ink-700 (a
+   "borda" do BRAND.md), por dentro, sem mudar o tamanho de nada. A linha de superset (.item.in-ss)
+   já usa a sombra interna para a sua faixa lime, e fica como está. */
+:root:root:not([data-theme="light"]) .card,
+:root:root:not([data-theme="light"]) .item:not(.in-ss),
+:root:root:not([data-theme="light"]) .tile,
+:root:root:not([data-theme="light"]) .kpis,
+:root:root:not([data-theme="light"]) .menu-group.grouped .menu-list {
+  box-shadow: inset 0 0 0 1px var(--g12-ink-700);
+}
+:root:root:not([data-theme="light"]) .kpis .tile { box-shadow: none }
+
+/* O acento padrão ("lime") é o lime da marca, com texto ink sobre ele. Nos dois temas o
+   preenchimento é o mesmo; no claro, o lime como texto (--acc-ink) é um oliva escuro: 5,9:1
+   sobre a página (#f2f2f7) e 6,5:1 sobre o branco. */
+:root:root:root[data-accent="lime"] {
+  --acc: var(--g12-lime);
+  --acc-2: var(--g12-lime-600);
+  --on-acc: var(--g12-on-lime);
+  --acc-ink: var(--g12-lime);
+}
+:root:root:root[data-theme="light"][data-accent="lime"] { --acc-ink: #4d6600 }
+/* No claro, o lime como cor de texto some no branco (1,3:1). O app pinta alguns números com o
+   acento por estilo inline (a variação do peso em 30 dias, sheets.jsx bwDeltaColor): no claro esses
+   ganham o oliva legível do --acc-ink. Só `color`, nunca `background-color`. */
+:root:root[data-theme="light"] [style^="color: var(--acc)"],
+:root:root[data-theme="light"] [style*="; color: var(--acc)"] { color: var(--acc-ink) !important }
+/* A amostra do lime em Ajustes → Aparência: a cor vem inline de lib/format.js (ACCENTS.lime). */
+:root:root .swatches > .swatch:first-child { background: var(--g12-lime) !important }
+
+/* ------------------------------------------------------------ tipografia -- */
+:root body { font-family: var(--g12-sans) }
+
+/* Fraunces só nos títulos grandes. */
+:root .hdr h1,
+:root .sp-root-title,
+:root .t-large {
+  font-family: var(--g12-serif);
+  font-weight: 600;
+  font-optical-sizing: auto;
+  letter-spacing: -.01em;
+}
+
+/* JetBrains Mono nos números do treino. Fora da lista de propósito: o peso corporal da pesagem
+   (.bw-read), porque o campo se ajusta aos dígitos contando o ponto decimal como meio `ch`
+   (components/ui.jsx numWidthCh) e na fonte mono o ponto tem um `ch` inteiro: "80.9" saía cortado. */
+:root .stp .val,
+:root .effcell,
+:root .effcell-stp .val,
+:root #timer .t,
+:root #tabbar button.start .tab-time,
+:root .whdr-mid .sub > span:first-child,
+:root .wvol,
+:root .stat-v,
+:root .tile .v:not(.v-sm),
+:root .card .big,
+:root .plateline .moves,
+:root .dw-it,
+:root .dw-read,
+:root .recap-v,
+:root .sbar-v,
+:root .slegend-v,
+:root .streak-num,
+:root .pbar-n,
+:root .wchip,
+:root .efftbl .n,
+:root .mrow .v.sess,
+:root .mrow .v.cmp,
+:root .wd-set,
+:root .ex-day-s,
+:root .streak-badge .n,
+:root .ex-best b.accent,
+:root b.accent[style*="--fs-title3"] {
+  font-family: var(--g12-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A célula de carga reserva a largura do maior valor ("227.5") na fonte dela (index.css, --num).
+   Na mono o ponto ocupa um caractere inteiro: 48 px cortavam "227.5" num celular de 320 px.
+   54 px = cinco caracteres da mono + o respiro do campo. A troca de papéis da série cronometrada
+   (a carga vai para a segunda coluna) leva a mesma folga. */
+:root .setrow .stp.w,
+:root .sethead .w-sp { --num: 54px }
+:root .setrow.timed .stp.r,
+:root .sethead.timed .r-sp { --num: 54px }
+
+/* A estimativa de 1RM (sheets.jsx, um <b class="accent"> com o tamanho inline) e o melhor do
+   exercício (.ex-best) entram na lista acima sem mudar o JSX. */
+
+/* O título do Início é o wordmark: "GYM" na cor do texto (bone no escuro) e "12" em lime; no
+   claro o "12" é o oliva legível (Home.jsx, linha do standalone). */
+:root .g12-wm b { font-weight: inherit; color: var(--g12-lime) }
+:root:root[data-theme="light"] .g12-wm b { color: #4d6600 }
+
+/* Nomes de rotina como a pessoa escreveu: sem o capitalize do upstream ("Peito E Tríceps").
+   O cartão de hoje do Início (.today-row .ttl) e os chips do rodízio (.queue .chip); a data de um
+   chip fixado continua com a maiúscula, como no upstream. */
+:root .today-row .ttl,
+:root .queue .chip { text-transform: none }
+:root .queue .chip .dim:not(.qstate) { text-transform: capitalize }
+/* O resumo de um exercício recolhido no treino (Workout.jsx, capitalize inline) quebrava o
+   sentence case dos nomes em pt-BR ("Supino Reto Com Barra"). Só em pt-BR, onde o nome vem do
+   pacote com a caixa certa. */
+:root:lang(pt-BR) .wl-summary span[style*="capitalize"] { text-transform: none !important }

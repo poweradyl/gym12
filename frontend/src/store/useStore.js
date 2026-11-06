@@ -335,6 +335,7 @@ export function freshState() {
   // Exercise animations: Small (v1.3.11), a thumbnail beside the exercise name that a tap opens,
   // so the first set is on screen without scrolling. DEF stays 'full' for a profile saved before.
   s.gifSize = 'mini'
+  if ((import.meta.env || {}).VITE_STANDALONE === '1') s.enParens = { 'pt-BR': false } // GYM 12: nome em inglês entre parênteses desligado no perfil novo
   return s
 }
 

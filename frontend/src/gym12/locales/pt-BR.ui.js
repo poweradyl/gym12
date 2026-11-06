@@ -114,6 +114,7 @@ export default {
   "Go!": "Vai!",
   "Go! {0}": "Vai! {0}",
   "Gold month. Take a bow.": "Mês de ouro. Pode comemorar.",
+  "Green": "Lima",
   "hamstrings": "posteriores de coxa",
   "Hamstrings": "Posteriores de coxa",
   "Hands-free backups": "Backup automático",

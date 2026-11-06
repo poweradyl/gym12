@@ -1,5 +1,4 @@
-// GYM 12: o primeiro import de main.jsx. Fora do build do GYM 12 não faz nada (só carrega o CSS
-// da marca, que está vazio de regras).
+// GYM 12: o primeiro import de main.jsx. Fora do build do GYM 12 não faz nada.
 //
 // No build do GYM 12, antes de o app ler o armazenamento:
 //  - grava `gym_demo_seeded_v1`: o boot demo do upstream (useStore.js) acha que já semeou e cai no
@@ -14,8 +13,11 @@
 // LAZY do service worker, que os baixa na instalação. Importá-los estaticamente colocaria ~1 MB de
 // texto no bundle de entrada, lido em toda abertura (e também no build do upstream, que usa o
 // mesmo main.jsx), só para ter o mesmo resultado offline.
+//
+// O CSS da marca (./gym12.css, com as fontes) não é importado aqui: o plugin do GYM 12
+// (vite-plugin.js) acrescenta o import a este arquivo só no build do GYM 12, para que o build do
+// upstream e os testes nunca carreguem as cores, as fontes nem os arquivos woff2.
 import { STANDALONE, DEFAULT_LANG } from './flags.js'
-import './gym12.css'
 
 export const SEEDED_KEY = 'gym_demo_seeded_v1'
 export const LANG_KEY = 'gym_default_lang'
@@ -87,8 +89,15 @@ function persistAfterFirstWorkout() {
   }).catch(() => {})
 }
 
+// A Fraunces do wordmark nas imagens de compartilhamento (lib/card-draw.js): o canvas não espera
+// fonte, então ela é pedida já na abertura. Sem ela, o cartão sai com a fonte do sistema.
+export function loadBrandFont(doc = globalThis.document) {
+  try { return Promise.resolve(doc?.fonts?.load?.('700 40px Fraunces', 'GYM 12')).catch(() => null) } catch { return Promise.resolve(null) }
+}
+
 export function bootGym12(win = globalThis) {
   seedKeys()
+  loadBrandFont(win.document)
   listen(win)
   if (runningInstalled(win)) askPersist()
   persistAfterFirstWorkout()

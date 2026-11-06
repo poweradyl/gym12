@@ -74,7 +74,7 @@ export async function setLang(l, showEn, enOnly) {
     base === 'en' || !INSTR_LANGS.includes(base) ? null : pack(instrPacks, '../instr/' + base + '.js', null),
     base === 'en' || !EXERCISE_NAME_LANGS.includes(base) ? null : pack(exerciseNamePacks, '../exercise-names/' + base + '.js', null),
   ])
-  const ov = await overlayFor(l, dict) // GYM 12 (src/gym12): { ui: {}, names: {} } outside the GYM 12 build
+  const ov = await overlayFor(l, dict, exerciseNames) // GYM 12 (src/gym12): { ui: {}, names: {} } outside the GYM 12 build
   _setLangState(l, derivePack(l, merged(dict, ov.ui)), derivePack(l, instr), derivePack(l, merged(exerciseNames, ov.names)), show, only)
   if (detailsLoaded) loadDetails()
   document.documentElement.lang = l

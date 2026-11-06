@@ -38,6 +38,13 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-05 | `frontend/src/lib/routine-link.js` | Link de rotina com o endereço do próprio app (`<origem>/#/r/<payload>`) no standalone. |
 | 2026-11-05 | `frontend/src/lib/card-draw.js` | Marca "GYM 12" e site gym12.juniorsa.shop nas imagens de compartilhamento. |
 | 2026-11-05 | `frontend/src/lib/print-doc.js` | Marca "GYM 12" e site gym12.juniorsa.shop nos PDFs/impressões. |
+| 2026-11-06 | `frontend/src/App.jsx` | `meta theme-color` #050604 (ink-950) no tema escuro do standalone; o claro segue #f2f2f7. |
+| 2026-11-06 | `frontend/src/lib/i18n-core.js` | `CASED_NAME_LANGS` inclui pt-BR no standalone: nomes de exercícios em sentence case, sem o `capitalize` do CSS. |
+| 2026-11-06 | `frontend/src/lib/i18n.js` | `overlayFor` recebe também o pacote de nomes de exercícios (a camada põe a 1ª letra maiúscula em pt-BR). |
+| 2026-11-06 | `frontend/src/store/useStore.js` | `freshState`: perfil novo do standalone com `enParens: { 'pt-BR': false }` (sem o nome em inglês entre parênteses); perfis existentes e o upstream não mudam. |
+| 2026-11-06 | `frontend/src/views/Home.jsx` | A linha do título do standalone vira o wordmark: `GYM <b>12</b>` em `.g12-wm` (cores no gym12.css). |
+| 2026-11-06 | `frontend/src/components/ui.jsx` | `NumberField` mostra vírgula decimal em pt-BR no standalone ("67,5"); continua aceitando "67,5" e "67.5" (o `commit` do upstream já trocava a vírgula). |
+| 2026-11-06 | `frontend/src/lib/card-draw.js` | Wordmark das imagens de compartilhamento: "GYM" em bone (escuro) + "12" no acento, em Fraunces quando a fonte já carregou, sem os halteres do openGym. |
 
 ## Arquivos novos
 
@@ -69,6 +76,18 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-05 | `brand/manifest.json` | Manifest do GYM 12 (ícones ainda os do upstream). |
 | 2026-11-05 | `scripts/gym12-build.sh` | Build único do GYM 12 (vite build + pós-build). |
 | 2026-11-05 | `docs/gym12/capturas/fase1/` | Capturas da verificação da fase 1. |
+| 2026-11-06 | `frontend/src/gym12/gym12.css` | Preenchido: tokens ink/bone/mist no tema escuro, acento lime (#c4f439, texto ink; oliva #4d6600 como texto no claro), contorno ink-700 nos cartões, Geist na interface, Fraunces nos títulos grandes, JetBrains Mono nos números do treino, `--num` da célula de carga para a mono, wordmark do Início, nomes de rotina sem `capitalize` (cartão de hoje, chips do rodízio), resumo recolhido do exercício sem `capitalize` em pt-BR, 1RM estimado e melhor do exercício em mono. Só entra no build do GYM 12 (o plugin o importa). |
+| 2026-11-06 | `frontend/src/gym12/fonts/` | woff2 latin + latin-ext (Fontsource 5.3.0): Fraunces romana (wght+opsz) e itálica (wght), Geist (wght), JetBrains Mono (wght) — 314.388 bytes — e as licenças `OFL-*.txt`. |
+| 2026-11-06 | `frontend/src/gym12/boot.js` | Não importa mais o CSS (o plugin acrescenta o import só no build do GYM 12); pede a Fraunces na abertura para o canvas (`loadBrandFont`). |
+| 2026-11-06 | `frontend/src/gym12/vite-plugin.js` | `transform` com o import do gym12.css no boot.js; favicon SVG + PNG 32; tela de abertura com o wordmark em contorno (`brand/wordmark.svg`) e traço lime; cópia dos ícones de `brand/` para a raiz do dist. |
+| 2026-11-06 | `frontend/src/gym12/i18n-overlay.js` | `sentenceCase`: nomes de exercícios pt-BR com a 1ª letra maiúscula (pacote do catálogo + revisões). |
+| 2026-11-06 | `frontend/src/gym12/scripts/brand-assets.mjs` | Gera `brand/icon.svg`, ícones PNG, favicon e wordmark (texto em contorno com a Fraunces 700; ferramentas fora do projeto, em `GYM12_TOOLS`). |
+| 2026-11-06 | `frontend/src/gym12/locales/pt-BR.ui.js` | "Green" → "Lima" (nome do acento padrão em Ajustes → Aparência). |
+| 2026-11-06 | `frontend/src/gym12/padroes.test.jsx` | Testes: `enParens` do perfil novo, vírgula decimal do NumberField, "Lima", favicon. |
+| 2026-11-06 | `frontend/src/gym12/brand.test.js` | Testes: tela de abertura, ícones, manifest, CSS só pelo plugin, fontes/licenças/orçamento, marca do canvas. |
+| 2026-11-06 | `brand/icon.svg`, `brand/icon-180.png`, `brand/icon-192.png`, `brand/icon-512.png`, `brand/icon-maskable-512.png`, `brand/favicon.svg`, `brand/favicon-32.png`, `brand/wordmark.svg` | Ícones e wordmark do GYM 12 (gerados por brand-assets.mjs); favicon (SVG e 32 px) só com o "12" em lime. |
+| 2026-11-06 | `brand/manifest.json` | Ícones 192 e 512 "any" e 512 "maskable" do GYM 12. |
+| 2026-11-06 | `docs/gym12/capturas/fase3/` | Capturas da identidade visual (390×844, tema escuro e claro) e das correções. |
 
 ## Atualização mensal
 
