@@ -133,3 +133,31 @@ describe('títulos e selos da gravação', () => {
     expect(css).toMatch(/:root:lang\(pt-BR\) \.bodymap \+ \.chips \.chip,\s*:root:lang\(pt-BR\) \.search-row ~ \.chips \.chip \{ text-transform: none \}/)
   })
 })
+
+// 2026-11-06 (gravação do Reel, decisão do dono): o botão de começar o treino diz "Iniciar".
+describe('botão "Iniciar"', () => {
+  it('o botão e as frases que o citam dizem "Iniciar" em pt-BR no GYM 12', async () => {
+    const pack = await ptBRui()
+    expect(pack.Start).toBe('Iniciar')
+    expect(pack['Start {0}']).toBe('Iniciar {0}')
+    expect(pack['Start workout']).toBe('Iniciar treino')
+    expect(pack['Start without weighing in']).toBe('Iniciar sem se pesar')
+    expect(pack['The big Start button']).toBe('O botão Iniciar')
+    expect(pack['Home shows it on its day and Start opens it. Change it any time right here.']).toMatch(/ e Iniciar abre\./)
+    expect(pack['Walk into one of your gyms and openGym nudges you to hit Start. Once a day at most, and never when you already trained. Your gyms stay on this phone.']).toMatch(/GYM 12 dá um toque para você apertar Iniciar\./)
+  })
+  it('o que não é esse botão continua natural', async () => {
+    const pack = await ptBRui()
+    expect(pack['Start set']).toBe('Começar série')
+    expect(pack['Start the loop']).toBe('Começar o rodízio')
+    expect(pack['Start programme']).toBe('Começar programa')
+    // Nenhuma frase do pacote diz "Começar" sozinho referindo-se ao botão.
+    const soltas = Object.entries(pack).filter(([, v]) => typeof v === 'string' && /(?:apertar|botão|e) Começar\b/.test(v))
+    expect(soltas).toEqual([])
+  })
+  it('fora do GYM 12 o pt-BR do upstream continua "Começar"', async () => {
+    await standalone(false)
+    const base = (await import('../locales/pt-BR.js')).default
+    expect(base.Start).toBe('Começar')
+  })
+})

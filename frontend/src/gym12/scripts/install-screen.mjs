@@ -85,9 +85,9 @@ async function main() {
     await page.reload()
     await page.waitForTimeout(2000)
     if (await skip.count()) { await skip.first().click(); await page.waitForTimeout(400) }
-    await page.locator('button:has-text("Começar")').first().click()
+    await page.locator('button:has-text("Iniciar")').first().click()
     await page.waitForTimeout(800)
-    const noWeigh = page.getByRole('button', { name: 'Começar sem se pesar' })
+    const noWeigh = page.getByRole('button', { name: 'Iniciar sem se pesar' })
     if (await noWeigh.count()) await noWeigh.click()
     await page.waitForTimeout(1500)
     if (!(await page.getByText('Supino reto com barra').count())) throw new Error('a tela de treino não abriu com o Supino reto com barra')

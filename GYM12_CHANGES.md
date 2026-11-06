@@ -151,6 +151,10 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/gym12/flags.js` | `GRAVACAO` (`__GYM12_GRAVACAO__`, só no build de gravação; falso no resto). |
 | 2026-11-06 | `frontend/src/gym12/boot.js` | `seedKeys` não grava `gym_demo_seeded_v1` no build de gravação (o boot demo semeia o histórico de exemplo). |
 | 2026-11-06 | `scripts/gym12-gravacao.sh` | Build de gravação (`frontend/dist-gravacao`, com a mídia) e, com `--serve`, o `vite preview` em 127.0.0.1:4430. |
+| 2026-11-06 | `frontend/src/gym12/locales/pt-BR.ui.js` | Botão de começar o treino em pt-BR: "Start" → "Iniciar" (botão central da barra de abas, etiqueta do cartão "Hoje", etiquetas das rotinas), "Start {0}" → "Iniciar {0}", "Start workout" → "Iniciar treino", "Start without weighing in" → "Iniciar sem se pesar"; frases que citam o botão ("O botão Iniciar", "… e Iniciar abre", "… apertar Iniciar"). "Começar série", "Começar o rodízio", "Começar programa" etc. ficam (decisão do dono). |
+| 2026-11-06 | `frontend/src/gym12/termos-video.test.js` | Testes: "Iniciar" no pt-BR do GYM 12, frases que não são o botão intactas, upstream com "Começar". |
+| 2026-11-06 | `frontend/src/gym12/scripts/install-screen.mjs` | Procura o botão "Iniciar" e "Iniciar sem se pesar". |
+| 2026-11-06 | `frontend/src/gym12/gravacao/gravar.mjs` | Retângulo/toque `botao_iniciar` (era `botao_comecar`) e auditoria contra "Começar" solto. |
 
 ## Deploy
 

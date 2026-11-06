@@ -256,7 +256,7 @@ export const TOMADAS = {
     desc: 'Início do GYM 12 parado, uma rolagem leve de 150 px no meio e parado de novo; sem peso corporal.',
     async prep(page) { await page.evaluate(() => window.scrollTo(0, 0)); await passar(page, 500) },
     async gravar(t) {
-      t.acompanhar('hoje', 'linha "Hoje · Treino A" com o "Começar"', '() => document.querySelector(".today-row")')
+      t.acompanhar('hoje', 'linha "Hoje · Treino A" com o "Iniciar"', '() => document.querySelector(".today-row")')
       t.acompanhar('wordmark', 'título "GYM 12"', '() => document.querySelector(".g12-wm")')
       const Y = 150, a = 18, b = 66
       await t.ate(89, async f => { if (f >= a && f <= b) await t.rolar(Math.round(Y * suave((f - a) / (b - a)))) })
@@ -303,15 +303,15 @@ export const TOMADAS = {
   },
 
   iniciar: {
-    desc: 'Início com "Hoje · Treino A · Começar"; toque no "Começar" e a tela do treino ativo abrindo.',
+    desc: 'Início com "Hoje · Treino A · Iniciar"; toque no "Iniciar" e a tela do treino ativo abrindo.',
     async prep(page) { await page.evaluate(() => window.scrollTo(0, 0)); await passar(page, 500) },
     async gravar(t) {
-      t.acompanhar('botao_comecar', 'botão "Começar" da linha Hoje (o "Iniciar" do roteiro)', '() => document.querySelector(".today-row .tag")')
+      t.acompanhar('botao_iniciar', 'botão "Iniciar" da linha Hoje', '() => document.querySelector(".today-row .tag")')
       t.acompanhar('linha_hoje', 'linha "Hoje · Treino A"', '() => document.querySelector(".today-row")')
       t.acompanhar('campo_carga', 'campo de carga da 1ª série (treino ativo)', '() => document.querySelector(".setrow .stp.w input")')
       await t.ate(19)
-      await t.tocar(t.page.locator('.today-row .tag'), 'botao_comecar')
-      t.evento('toque_comecar', { retangulo: 'botao_comecar' })
+      await t.tocar(t.page.locator('.today-row .tag'), 'botao_iniciar')
+      t.evento('toque_iniciar', { retangulo: 'botao_iniciar' })
       await t.ate(104)
     },
   },
@@ -416,6 +416,8 @@ export const PROIBIDO = [
   /\bdemo\b|demonstra|dados de exemplo/i,
   /peso corporal|pesage|pesar|\bIMC\b|gordura corporal|\bmedidas?\b|circunfer/i,
   /\bfotos?\b/i,
+  // O botão de começar o treino diz "Iniciar" (decisão do dono, 06/11): "Começar" sozinho não volta.
+  /\bComeçar\b(?! (?:série|o rodízio|nova volta|programa|um plano|por))/,
   // Inglês que já apareceu em telas do upstream ("Reps" fica: é o termo do pacote pt-BR e das academias).
   /\b(?:Start|Finish|Rest|Workout|Sets|Best|Last time|Everything else|Skip|Done|Weight|Today|Exercises|Muscles)\b|\bPR\b/,
 ]

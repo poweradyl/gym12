@@ -267,7 +267,7 @@ export default {
   "Start set": "Começar série",
   "Start the loop": "Começar o rodízio",
   "Start the loop over": "Recomeçar o rodízio",
-  "Start without weighing in": "Começar sem se pesar",
+  "Start without weighing in": "Iniciar sem se pesar",
   "Started": "Começou",
   "Starter programmes": "Modelos de divisão (exemplo)",
   "Straight into the work sets.": "Direto para as séries de trabalho.",
@@ -299,7 +299,7 @@ export default {
   "That date already has measurements. Edit it instead.": "Essa data já tem medidas. Edite essa medição.",
   "That’s the whole stack: {0} {1} is the heaviest it goes, so the weight stays.": "São todas as placas: {0} {1} é o máximo da máquina, então a carga fica.",
   "The barbell has put on its Santa hat. Just for this phone, and you can switch back in Settings any time.": "A barra colocou o gorro de Papai Noel. Só neste celular, e você pode voltar atrás nos Ajustes quando quiser.",
-  "The big Start button": "O botão Começar",
+  "The big Start button": "O botão Iniciar",
   "The loop": "O rodízio",
   "The loop stops. Your weekdays stay as they are, and the loop is saved for later.": "O rodízio para. Seus dias da semana ficam como estão e o rodízio fica salvo para depois.",
   "The reps you logged last time in that routine, carried over, and any warm-ups you set up yourself. With progression off, the weight too.": "São mantidas as repetições que você registrou da última vez nessa rotina e os aquecimentos que você mesmo ajustou. Com a progressão desligada, a carga também.",
@@ -421,4 +421,15 @@ export default {
   "PR": "Recorde",
   "{0} PR": "{0} recorde",
   "{0} PRs": "{0} recordes",
+
+  // 2026-11-06 (gravação do Reel, decisão do dono): o botão que começa o treino diz "Iniciar" —
+  // o central da barra de abas, a etiqueta do cartão "Hoje" no Início, as das rotinas e o botão
+  // "Iniciar Treino A" da tela de começar, e "Iniciar sem se pesar"; o título dessa tela e as
+  // frases que citam o botão pelo nome acompanham. "Começar série", "Começar o rodízio",
+  // "Começar programa" e afins não são esse botão e ficam como estão.
+  "Start": "Iniciar",
+  "Start {0}": "Iniciar {0}",
+  "Start workout": "Iniciar treino",
+  "Home shows it on its day and Start opens it. Change it any time right here.": "O Início mostra a rotina no dia dela e Iniciar abre. Mude quando quiser, aqui mesmo.",
+  "Walk into one of your gyms and openGym nudges you to hit Start. Once a day at most, and never when you already trained. Your gyms stay on this phone.": "Entre em uma das suas academias e o GYM 12 dá um toque para você apertar Iniciar. No máximo uma vez por dia, e nunca se você já treinou. Suas academias ficam neste celular.",
 }
