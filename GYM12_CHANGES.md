@@ -155,14 +155,17 @@ Cada arquivo original alterado é listado abaixo com data e motivo.
 | 2026-11-06 | `frontend/src/gym12/termos-video.test.js` | Testes: "Iniciar" no pt-BR do GYM 12, frases que não são o botão intactas, upstream com "Começar". |
 | 2026-11-06 | `frontend/src/gym12/scripts/install-screen.mjs` | Procura o botão "Iniciar" e "Iniciar sem se pesar". |
 | 2026-11-06 | `frontend/src/gym12/gravacao/gravar.mjs` | Retângulo/toque `botao_iniciar` (era `botao_comecar`) e auditoria contra "Começar" solto. |
+| 2026-11-07 | `frontend/src/gym12/flags.js` | Endereço público do app: `BRAND.site`/`BRAND.host` passam a gym12.juniorsa.com.br (era gym12.juniorsa.shop); vale para a marca nas imagens de compartilhamento e nos PDFs. |
 
 ## Deploy
 
 Publicado em 2026-11-06.
 
 - Cloudflare Pages, projeto `gym12`, branch de produção `gym12`.
-- URL: https://gym12.juniorsa.shop (domínio próprio; DNS `CNAME gym12 → gym12.pages.dev`,
-  proxied) e https://gym12.pages.dev.
+- Endereço principal (desde 2026-11-07): https://gym12.juniorsa.com.br (domínio próprio no
+  GoDaddy; DNS `CNAME gym12 → gym12.pages.dev`). É o que o app mostra (`BRAND.site`).
+- Segundo endereço, mantido: https://gym12.juniorsa.shop (DNS `CNAME gym12 → gym12.pages.dev`,
+  proxied; foi o principal de 2026-11-06 a 2026-11-07). Também https://gym12.pages.dev.
 - Build e deploy, na raiz do repositório, com a árvore limpa no branch `gym12` e
   `VITE_TESTE_LICENCA`/`GYM12_AMBIENTE` não definidas:
 

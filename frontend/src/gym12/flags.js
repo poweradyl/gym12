@@ -13,8 +13,8 @@ export const GRAVACAO = typeof __GYM12_GRAVACAO__ === 'boolean' ? __GYM12_GRAVAC
 
 export const BRAND = {
   name: 'GYM 12',
-  site: 'https://gym12.juniorsa.shop',
-  host: 'gym12.juniorsa.shop',
+  site: 'https://gym12.juniorsa.com.br',
+  host: 'gym12.juniorsa.com.br',
   source: 'https://github.com/poweradyl/gym12',
 }
 
